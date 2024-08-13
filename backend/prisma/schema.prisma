@@ -1,0 +1,175 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ENUMS
+enum NotificationStatus {
+  Viewed
+  Notviewed
+}
+
+// all the important models should be in user like post recipe follows favorites etc...
+model User {
+  id        String @id @default(cuid())
+  name      String 
+  username  String @unique
+  password  String?
+  profile   String?
+
+  userInfo  UserInfo?
+  comments  Comment[]
+  childComments childComment[]
+  Posts     Post[]
+  
+  NotificationSent  Notification[]  @relation("notificationSent") // this has no use but just to get the user name and id for info of the user
+
+  followers Follow[] @relation("Followers")
+  following Follow[] @relation("Following")
+  
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Session {
+  id          String  @id @default(cuid())
+  sid         String  @unique
+  data       String   // Store serialized session data
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserInfo {  
+  id        String  @id @default(cuid())
+  userId    String  @unique
+  email     String? @unique 
+  bio       String?
+
+  favorites Favorites[]
+  // SocialMedias
+  // add extra later on
+
+  notifications Notification[]  @relation("notification")
+
+
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createAt DateTime @default(now())
+  updatedAt DateTime @updatedAt // will indicate when last updated
+}
+
+model Notification { 
+  id                String @id @default(cuid())
+  status            NotificationStatus @default(Notviewed)
+  body              String 
+  link              String?
+  notificationFor_Id   String
+  notificationFrom_Id  String
+
+  notificationFor   UserInfo   @relation("notification", fields: [notificationFor_Id], references: [userId], onDelete: Cascade)
+  notificationFrom  User       @relation("notificationSent", fields: [notificationFrom_Id], references: [id])
+
+  createdAt         DateTime @default(now())
+}
+
+
+// when gettign the follower search for followings with the id of user
+// when getting the following of user search for the followers of user Id
+model Follow {
+  id            String  @id @default(cuid())
+  followerId    String
+  followingId   String 
+  createdAt     DateTime  @default(now())
+
+  follower      User    @relation("Followers", fields: [followerId], references: [id])
+  following     User    @relation("Following", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
+}
+
+model Post {
+  id          String  @id   @default(cuid())
+  authorId    String  
+  status      String
+  views       Int
+  likes       Int
+
+  author      User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  recipe      Recipe?
+  comments    Comment[]
+  favorites   Favorites[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Favorites {
+  id          String  @id  @default(cuid())
+  userId  String
+  postId      String
+
+  userInfo    UserInfo @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createAt    DateTime @default(now())
+
+  @@unique([userId, postId])
+}
+
+model Comment {
+  id        String  @id  @default(cuid())
+  userId    String  
+  postId    String  
+  body      String
+  likes     Int  @default(0)
+
+  childComments childComment[]
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model childComment {
+  id        String  @id @default(cuid())
+  userId    String
+  commentId String
+  body      String
+  likes     Int  @default(0)
+
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model Recipe {
+  id            String    @id  @default(cuid())
+  title         String
+  image         String[]
+  description   String
+  ingredients   String[]
+  cookingTime   Int
+  servings      Int
+  cost          Int
+  instruction   String
+
+  // filters
+  mealType      String?
+  cuisine       String
+  mealPreference String?
+
+  postId        String    @unique
+  post          Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
