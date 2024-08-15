@@ -1,6 +1,6 @@
 import { Router } from 'express' 
 import { ensureAuthenticated } from '../utils/ensureAuthenticated'
-import { changePassword, deleteAccount, followUser, getNotification, getUserInfo, isFollowing, unfollowUser } from '../controllers/userController'
+import { changePassword, changeUsername, deleteAccount, followUser, getNotification, getUserInfo, isFollowing, unfollowUser } from '../controllers/userController'
 
 const router = Router()
 
@@ -22,7 +22,7 @@ router.get('/getUserInfo', ensureAuthenticated, getUserInfo)
 //CHANGE
 router.post('/changeUserInfo', ensureAuthenticated,)
 
-router.post('/changeusername', ensureAuthenticated)
+router.post('/changeusername', ensureAuthenticated, changeUsername)
 
 // put multer here later for forms
 router.post('/changeAvatar', ensureAuthenticated,)

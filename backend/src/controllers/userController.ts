@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { prisma } from '../db/db'
 import { getSocketId, io } from '../socket/socket'
 import bcrypt from 'bcrypt'
+import { Prisma } from '@prisma/client'
 
 export const isFollowing = async (req: Request, res: Response) => {
     try {
@@ -216,6 +217,40 @@ export const getUserInfo = async (req: Request, res: Response) => {
     }
 }
 
+export const changeUsername = async (req: Request, res: Response) => {
+    try {
+        const { username } = req.body
+        const user = req.user!
+
+        if(!username) throw new Error('username is undefined')
+
+        const changeUsername = await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                username: username
+            }
+        })
+
+        console.log(changeUsername)
+
+        res.status(200).json({ 
+            success: true,
+            message: 'successfully change username' 
+        })
+    } catch (error: any) {
+        if(error instanceof Prisma.PrismaClientKnownRequestError) {
+            // for handling unique constraints
+            if(error.code === 'P2002') {
+                return res.status(400).json({ error: 'username already exist' })
+            }
+        }
+        console.log('error in the changeUsername function in the user Controller ' + error)
+        res.status(400).json({ error : error.mesasge })
+    }
+}
+
 export const changePassword = async (req: Request, res: Response) => {
     try {
         const { password, newPassword, confirmPassword } = req.body
@@ -242,12 +277,15 @@ export const changePassword = async (req: Request, res: Response) => {
                 message: 'wrong password'
             }
 
+            const saltRounds = parseInt(process.env.BCRYPT_SALTROUNDS!)            
+            const hashnewPassword = await bcrypt.hash(newPassword, saltRounds)
+
             await prisma.user.update({
                 where: {
                     id: user.id
                 },
                 data: {
-                    password: newPassword
+                    password: hashnewPassword
                 }
             })
 
