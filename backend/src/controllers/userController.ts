@@ -1,6 +1,7 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { prisma } from '../db/db'
 import { getSocketId, io } from '../socket/socket'
+import bcrypt from 'bcrypt'
 
 export const isFollowing = async (req: Request, res: Response) => {
     try {
@@ -180,6 +181,146 @@ export const getNotification = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.log('error in the getNotification function in the user Controller ' + error)
         return res.status(400).json({ error : error.message })
+    }
+}
+
+// SETTINGS
+
+export const getUserInfo = async (req: Request, res: Response) => {
+    try {
+        
+        const user = req.user!
+
+        const getuserInfo = await prisma.user.findFirst({
+            where: {
+                id: user.id
+            },
+            select: {
+                name: true,
+                username: true,
+                profile: true,
+                userInfo: {
+                    select: {
+                        bio: true,
+                        email: true
+                        //2fa: true
+                    }
+                }
+            }
+        })
+
+        res.status(200).json(getuserInfo)
+    } catch (error: any) {
+        console.log('error in the getUserInfo function in the user Controller ' + error)
+        res.status(400).json({ error: error.message})
+    }
+}
+
+export const changePassword = async (req: Request, res: Response) => {
+    try {
+        const { password, newPassword, confirmPassword } = req.body
+        const user = req.user!
+
+        if(newPassword !== confirmPassword) throw new Error('password is not the same')
+
+        const changePasswordTransaction = await prisma.$transaction(async (txprisma) => {
+            const getUser = await txprisma.user.findUnique({
+                where: {
+                    id: user.id
+                },
+                select: {
+                    password: true
+                }
+            })
+
+            if(!getUser) throw new Error('failed to find User')
+
+            const verifyPassword = await bcrypt.compare(password, getUser.password)
+
+            if(!verifyPassword) return { 
+                success : false,  
+                message: 'wrong password'
+            }
+
+            await prisma.user.update({
+                where: {
+                    id: user.id
+                },
+                data: {
+                    password: newPassword
+                }
+            })
+
+            return { 
+                success: true,
+                message: 'password changed'
+            }
+        })
+
+        if(changePasswordTransaction.success === false) {
+            throw new Error(changePasswordTransaction.message)
+        }
+
+        res.status(200).json(changePasswordTransaction)
+    } catch (error: any) {
+        console.log('error in the changePassword function in the user Controller ' + error)
+        res.status(400).json({ error : error.message})
+    }
+}
+
+export const deleteAccount = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { password } = req.body
+        const user = req.user!
+
+        const findUser = await prisma.user.findUnique({
+            where: {
+                id: user.id
+            },
+            select: {
+                password: true
+            }
+        })
+
+        if(!findUser) throw new Error('failed to find User')
+
+        const verifyPassword = await bcrypt.compare(password, findUser.password)
+
+        if(verifyPassword) {
+            const deleteUser = await prisma.user.delete({
+                where: {
+                    id: user.id
+                }
+            })
+
+            if(!deleteUser) throw new Error('failed to delete User')
+
+            req.logout((err) => {
+                if(err){
+                    console.error('Failed to log out:', err); 
+                    return next(err)
+                }
+
+                // Destroy the session
+                req.session.destroy((err) => {
+                    if (err) {
+                        console.error('Failed to destroy session:', err);
+                        return res.status(400).json({ error: 'Failed to destroy session, please log out manually.' });
+                    }
+
+                    // Clear the session cookie and send a response
+                    res.clearCookie('connect.sid').status(200).json({
+                        success: true,
+                        message: 'User deleted and session destroyed successfully.'
+                    });
+                });
+            })
+        } else {
+            res.status(302).json({ error: 'wrong password'})
+        }
+    } catch (error: any) {
+        console.log('error in the deleteAccount function in the userController' + error)
+        res.status(400).json({ error : error.message})
     }
 }
 

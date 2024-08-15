@@ -461,3 +461,98 @@ export const deleteComment = async (req: Request, res: Response) => {
         return res.status(400).json({ error : error.message})
     }
 }   
+
+// Child Comments
+export const replyChildComment = async(req: Request, res: Response) => {
+    try {
+        const user = req.user!
+        const { commentId } = req.params // this is parent commentId
+        const { comment } = req.body
+        
+        const replyTocomment = await prisma.childComment.create({
+            data: {
+                userId: user.id,
+                commentId: commentId,
+                body: comment
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        profile: true,
+                        createAt: true
+                    }
+                }
+            }
+        })
+
+        if(!replyTocomment) throw new Error('failed to reply')
+
+        res.status(200).json(replyTocomment)
+    } catch (error: any) {
+        console.log(`error in the replyChildComment function in the post Controller ${error}`)
+        res.status(400).json({ error : error.message})
+    }
+}
+
+export const likeChildComment = async (req: Request, res: Response) => {
+    try {
+        const user = req.user!
+        const { commentId } = req.params
+    
+        const likeAChildComment = await prisma.childComment.update({
+            where: {
+                id: commentId
+            },
+            data: {
+                likes: {
+                    increment: 1
+                }
+            }
+        })
+    
+        // implement notification here
+
+        return res.status(200).json({
+            success: true,
+            commentId: commentId
+        })
+    } catch (error: any) {
+        console.log('error in the likeChildComment function in the post Controller ' + error)
+        res.status(400).json({ error : error.message })
+    }
+}
+
+export const deleteChildComment = async (req: Request, res: Response) => {
+    try {
+        const user = req.user!
+        const { commentId } = req.params
+
+        const findChildComment = await prisma.childComment.findFirst({
+            where: {
+                id: commentId
+            },
+            select: {
+                userId: true
+            }
+        })
+
+        const verifyOwner = user.id === findChildComment?.userId
+        
+        if(!verifyOwner) throw new Error('not authorized!')
+
+        const deleteChildComment = await prisma.childComment.delete({
+            where: {
+                id: commentId
+            }
+        })
+
+        res.status(200).json({
+            deleted: true
+        })
+    } catch (error: any) {
+        console.log('error in the deleteChildComment function in the post Controller ' + error)
+        res.status(400).json({ error: error.message })
+    }
+}
