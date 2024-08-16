@@ -45,6 +45,7 @@ app.use(cors({
 }))
 
 app.use('/recipePhoto', express.static(path.join(__dirname, '../uploads/RecipePhotos')))
+app.use('/Avatar', express.static(path.join(__dirname, '../uploads/Avatars')))
 
 //ROUTES
 app.use('/api/auth', AuthRoutes)

@@ -292,6 +292,8 @@ export const comment = async (req: Request, res: Response) => {
             }
         })
 
+        
+
         if(!createComment) throw new Error('failed to create comment')
 
         return res.status(200).json(createComment)

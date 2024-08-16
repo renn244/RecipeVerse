@@ -3,6 +3,8 @@ import { prisma } from '../db/db'
 import { getSocketId, io } from '../socket/socket'
 import bcrypt from 'bcrypt'
 import { Prisma } from '@prisma/client'
+import { removeFile } from '../utils/removeFileUploads'
+import crypto from 'crypto'
 
 export const isFollowing = async (req: Request, res: Response) => {
     try {
@@ -200,11 +202,11 @@ export const getUserInfo = async (req: Request, res: Response) => {
                 name: true,
                 username: true,
                 profile: true,
+                MultiFactor: true,
                 userInfo: {
                     select: {
                         bio: true,
                         email: true
-                        //2fa: true
                     }
                 }
             }
@@ -214,6 +216,52 @@ export const getUserInfo = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.log('error in the getUserInfo function in the user Controller ' + error)
         res.status(400).json({ error: error.message})
+    }
+}
+
+export const changeUserInfo = async (req: Request, res: Response) => {
+    try {
+        const { name, email, bio } = req.body
+        const user = req.user!
+
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                name: name,
+                userInfo: {
+                    update: {
+                        where: {
+                            userId: user.id
+                        },
+                        data: {
+                            email: email,
+                            bio: bio
+                        }
+                    }
+                }
+            },
+        })
+
+        res.status(200).json({
+            success: true,
+            message: "changed is successfull"
+        })
+
+    } catch (error: any) {
+        if(error instanceof Prisma.PrismaClientKnownRequestError) {
+            // handling the unique constraint for email
+            if(error.code === 'P2002') {
+                return res.status(400).json({ 
+                    success: false,
+                    error : "email already exist"
+                })
+            }
+        }
+
+        console.log('error in the changeUserInfo function in the user Controller ' + error)
+        res.status(400).json({ error : error.message })
     }
 }
 
@@ -233,8 +281,6 @@ export const changeUsername = async (req: Request, res: Response) => {
             }
         })
 
-        console.log(changeUsername)
-
         res.status(200).json({ 
             success: true,
             message: 'successfully change username' 
@@ -248,6 +294,47 @@ export const changeUsername = async (req: Request, res: Response) => {
         }
         console.log('error in the changeUsername function in the user Controller ' + error)
         res.status(400).json({ error : error.mesasge })
+    }
+}
+
+export const changeAvatar = async (req: Request, res: Response) => {
+    try {
+        const file = req.file
+        const user = req.user!
+
+        const getuser = await prisma.user.findFirst({
+            where: {
+                id: user.id
+            },
+            select: {
+                profile: true
+            }
+        })
+
+        if(getuser?.profile) {
+            const fileName = getuser.profile.split('/')
+            // reference file names from user 'http://localhost:4000/Avatar/e55001c5f2966dff568d_INOSUKE_PROFILE.jpg'
+            removeFile('uploads/Avatars', fileName[fileName.length - 1]) // just getting the last in the split
+        }
+
+        const profileName = file ?  `http://localhost:4000/Avatar/${file.filename}` : ''
+
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                profile: profileName
+            }
+        })
+
+        res.status(200).json({
+            success: true,
+            avatarUrl: profileName
+        })
+    } catch (error: any) {
+        console.log('error in the changeAvatar function in the user Controller ' + error)
+        res.status(400).json({ error: error.message })
     }
 }
 
@@ -302,6 +389,55 @@ export const changePassword = async (req: Request, res: Response) => {
         res.status(200).json(changePasswordTransaction)
     } catch (error: any) {
         console.log('error in the changePassword function in the user Controller ' + error)
+        res.status(400).json({ error : error.message})
+    }
+}
+
+export const enable2FA = async (req: Request, res: Response) => {
+    try {
+        const user = req.user!
+        const { command } = req.body // this can be enable or disable
+        
+        if(command === 'enable') {
+            const secret = crypto.randomBytes(18).toString('hex');
+            
+            const update2FA = await prisma.user.update({
+                where: {
+                    id: user.id
+                },
+                data: {
+                    MultiFactor: true,
+                    secret: secret
+                },
+                select: {
+                    MultiFactor: true
+                }
+            })
+
+            res.status(200).json({
+                success: true,
+                MultiFactor: update2FA.MultiFactor
+            })
+        } else if (command === 'disable') {
+            const remove2FA = await prisma.user.update({
+                where: {
+                    id: user.id
+                },
+                data: {
+                    MultiFactor: false
+                },
+                select: {
+                    MultiFactor: true
+                }
+            })
+
+            res.status(200).json({
+                success: true,
+                MultiFactor: remove2FA.MultiFactor
+            })
+        }
+    } catch (error: any) {
+        console.log('error in the enable2FA function in the user Controller ' + error)
         res.status(400).json({ error : error.message})
     }
 }

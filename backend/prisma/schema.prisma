@@ -27,6 +27,9 @@ model User {
   password  String
   profile   String?
 
+  MultiFactor Boolean @default(false)
+  secret    String?
+
   userInfo  UserInfo?
   comments  Comment[]
   childComments childComment[]
