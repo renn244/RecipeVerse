@@ -1,23 +1,49 @@
-import { Router }  from 'express'
-import { check, forgotPassword, logout, signup } from '../controllers/authController.';
+import { NextFunction, Router }  from 'express'
+import { check, forgotPassword, logout, VerifyOtpCode, signup, ResendOtpCode } from '../controllers/authController.';
 import passport from 'passport';
 
 const router = Router();
 
-router.post('/login',
-    passport.authenticate('local', { 
-        failureRedirect: process.env.CLIENT_BASE_URL + '/login',
-        failureMessage: true 
-    }),
-    function(req, res) {
-        console.log('succesfully login user: ' + req.user)
-        res.status(200).json({ message : 'successfully login'})
-    }) // put controllers later
+router.post('/login', (req, res, next: NextFunction) => {
+    passport.authenticate('local', (err: any, user: any, info: any) => {
+  
+      if (err) {
+        return res.status(400).json({ error: err });
+      }
+  
+      if (info && info.message === 'otp_required') {
+        return res.status(200).json({ 
+            otpRequired: true, 
+            userId: info.userId,
+            email: info.email,
+            message: 'OTP required. Please verify.'
+        });
+      }
+  
+      if (!user) {
+        return res.status(400).json({ error: info?.message || 'Authentication failed' });
+      }
+
+      // login the user if the he does not use otp
+      req.logIn(user, (loginErr) => {
+        if (loginErr) {
+          return res.status(400).json({ error: 'Failed to log in' });
+        }
+  
+        return res.status(200).json({ message: 'Successfully logged in' });
+      });
+    })(req, res, next); // this is important for passport auth
+});
+  
 
 router.post('/signup', signup)
 
 // not tested
 router.post('/forgotPassword', forgotPassword)
+
+router.post('/verifyOtpCode', VerifyOtpCode)
+
+router.post('/resendOtp', ResendOtpCode)
 
 router.get('/logout', logout)
 

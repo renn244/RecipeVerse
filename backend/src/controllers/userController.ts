@@ -223,7 +223,7 @@ export const changeUserInfo = async (req: Request, res: Response) => {
     try {
         const { name, email, bio } = req.body
         const user = req.user!
-
+        
         await prisma.user.update({
             where: {
                 id: user.id
