@@ -3,7 +3,7 @@ import { Strategy as LocalStrategy } from 'passport-local'
 import dotenv from 'dotenv'
 import bcrypt from 'bcrypt'
 import { prisma } from '../db/db'
-import { User } from '@prisma/client'
+import { MultiFactorSendCode } from '../controllers/authController.'
 
 dotenv.config()
 // not tested
@@ -29,7 +29,7 @@ passport.deserializeUser(async (id, cb) => {
                 userInfo: true
             } // this is where you control the data that is being send
         })
-
+        
         if(!user || !user.userInfo) return cb('User not found')
 
         cb(null, user)
@@ -39,7 +39,7 @@ passport.deserializeUser(async (id, cb) => {
     }
 })
 
-passport.use(new LocalStrategy( async function(username, password, cb) {
+passport.use(new LocalStrategy(async function(username, password, cb) {
     try {
         if(!username || !password) throw new Error('fill in required fields')
 
@@ -52,11 +52,18 @@ passport.use(new LocalStrategy( async function(username, password, cb) {
             }
         })
 
+
         if(!getUser || !getUser.password) throw new Error('wrong username')
             
         const verifyPassword = await bcrypt.compare(password, getUser.password)
 
         if(!verifyPassword) throw new Error('Wrong password')
+
+        if(getUser?.MultiFactor && getUser.userInfo?.email && getUser.secret) {
+            const getOTPCode = await MultiFactorSendCode(getUser.userInfo?.email, getUser.secret)
+            if(!getOTPCode) throw new Error('failed to generate otpCode')
+            return cb(null, false, { message : 'otp_required', userId: getUser.id, email: getUser.userInfo.email})
+        }
 
         return cb(null, getUser)
 

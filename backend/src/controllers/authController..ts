@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 import bcrypt from 'bcrypt'
 import { prisma } from '../db/db'
+import { totp } from 'otplib'
 import { User as PrismaUser } from '@prisma/client'
+import nodemailer from 'nodemailer'
 
 export const signup = async (req: Request, res: Response) => {
     try {
@@ -60,10 +62,140 @@ export const signup = async (req: Request, res: Response) => {
 
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
-        // do later
+        const { email } = req.body
+
+        const getUser = await prisma.user.findFirst({
+            where: {
+                userInfo: {
+                    email: email
+                }
+            }
+        })
+
+        if(!getUser) {
+            return res.status(204).json({
+                success: false,
+                message: 'email does not exist'
+            })
+        }
+
+        // send email here
+
     } catch (error: any) {
         console.log('Error in the forgotPassword in the authControllers Error: ' + error.message)
         return res.status(400).json({ error : error.message})
+    }
+}
+
+// a function not a Route
+export const MultiFactorSendCode = async (email: string, secret: string) =>  {
+    try {
+
+        const token = totp.generate(secret)  
+        // Node Mailer
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'santosblogapp@gmail.com',
+                pass: '***REMOVED***'
+            }
+        })
+
+        let mailOptions = {
+            from: 'santosblogapp@gmail.com',
+            to: email,
+            subject: 'OTP Code',
+            text: 'code to login',
+            html: `<h2>${token}</h2>`
+        }
+
+        transporter.sendMail(mailOptions, (err, info) => {
+            if(err) {
+                console.log('error in the sendMail util', err)
+                throw new Error('failed to send Email')
+            } else {
+                console.log('Email sent', info.response)
+                return token
+            }
+        })
+        console.log(totp.timeRemaining())
+
+        return token
+    } catch (error: any) {
+        console.log('error in the MultiFactorSendCode function in the auth Controller ' + error)
+        // res.status(400).json({ error : error.message })
+    }
+}
+
+export const VerifyOtpCode = async (req: Request, res: Response) => {
+    try {
+        const { otp, userId } = req.body
+        
+        const getUser = await prisma.user.findUnique({
+            where: {
+                id: userId
+            },
+            include: {
+                userInfo: true
+            }
+        })
+  
+        if(!getUser?.secret) throw new Error('secret does not exist. Contact Support')
+
+        const verifyTOTP = totp.verify({ 
+            token: otp,
+            secret: getUser.secret
+        })
+
+        if(!verifyTOTP) {
+            return res.status(203).json({
+                success: false,
+                message: 'wrong otp Code'
+            })
+        }
+
+        req.logIn(getUser, (err) => {
+            if(err) {
+                console.log('error in the req.Login in the verifyOtp' + err)
+                return res.status(400).json({ error: 'failed to log you in' })
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: 'successfully verified OTP',
+            })
+        })
+    } catch (error: any) {
+        console.log('error in the MultiFactorVerifyCode function in the auth Controller ' + error)
+        res.status(400).json({ error : error.message })
+    }
+}
+
+export const ResendOtpCode = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.body
+        // the email is already in the search params 
+        // but it can be edited so it's beeter to have the email here
+        const getUserInfo = await prisma.user.findFirst({
+            where: {
+                id: userId
+            },
+            select: {
+                userInfo: true,
+                secret: true
+            }
+        })
+
+        const otpCode = await MultiFactorSendCode(getUserInfo?.userInfo?.email!, getUserInfo?.secret!)
+
+
+        res.status(200).json({
+            success: true,
+            message: "otp code resent"
+        })
+    } catch (error: any) {
+        console.log('error in the ResendOtpCode function in the auth Controller' + error)
+        res.status(400).json({ error: error.message })
     }
 }
 

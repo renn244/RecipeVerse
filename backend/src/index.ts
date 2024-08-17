@@ -25,10 +25,10 @@ const port = process.env.PORT ||  4000
 app.use(session({
     secret: 'secret keyboard cat',
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false },
+    saveUninitialized: false, // // Only save sessions that have been modified
+    cookie: { secure: false }, /// Set to true when using HTTPS in production
     store: new PrismaSessionStore(prisma, {
-        checkPeriod: 2 * 60 * 1000,
+        checkPeriod: 2 * 60 * 1000, // Clean expired sessions every 2 minutes
         dbRecordIdIsSessionId: true,
         dbRecordIdFunction: undefined
     })
