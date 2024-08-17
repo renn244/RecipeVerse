@@ -8,12 +8,14 @@ type filterType = {
     cuisine?: string,
     mealPreference?: string,
     cost?: number
-}
+} & { page: number }
 
 export const getRecipe = async (req: Request, res: Response) => {
     try {
-        const { search, mealPreference, mealType, cuisine, cost }: filterType = req.body
+        const { search, mealPreference, mealType, cuisine, cost, page }: filterType = req.body
 
+        const take = 12
+        const skip = (page - 1) * take
         // do later cost
 
         const prismaRecipe = await prisma.post.findMany({
@@ -40,7 +42,8 @@ export const getRecipe = async (req: Request, res: Response) => {
                     }
                 }
             },
-            take: 12,
+            take: take,
+            skip: skip,
             include: {
                 recipe: true,
             }
