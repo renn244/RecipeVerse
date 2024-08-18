@@ -130,6 +130,7 @@ export const unfollowUser = async (req: Request, res: Response) => {
 export const getProfile = async (req: Request, res: Response) => {
     try { 
         const { userId } = req.params
+        const user = req.user
 
         if(!userId) throw new Error('userId is empty')
 
@@ -137,17 +138,57 @@ export const getProfile = async (req: Request, res: Response) => {
             where: {
                 id: userId
             },
-            include: {
-                userInfo: true, 
-                Posts: true
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                profile: true,
+                createAt: true,
+                userInfo: {
+                    select: {
+                        bio: true,
+                    }
+                }, 
+                Posts: {
+                    take: 12,
+                    include: {
+                        recipe: true
+                    }
+                }
+            },
+        })
+
+        const followingCount = await prisma.follow.count({
+            where: {
+                followerId: userId
             }
         })
+
+        const followersCount = await prisma.follow.count({
+            where: {
+                followingId: userId
+            }
+        })
+
+        let isFollowing;
+        if(user) {
+            isFollowing = await prisma.follow.findUnique({
+                where: {
+                    followerId_followingId: {
+                        followerId: user?.id,
+                        followingId: userId
+                    }
+                }
+            })
+        }
 
         if(!prismaGetProfile) return res.status(300).json({ find: false })
 
         res.status(200).json({
-            find: true,
-            data: prismaGetProfile
+            ...prismaGetProfile,
+            followingCount: followingCount,
+            followerCount: followersCount,
+            isFollowing: isFollowing ? true : false
         })
     } catch (error: any) {
         console.log('error in the getProfile function in the user controller ' + error)
