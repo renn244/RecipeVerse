@@ -17,6 +17,7 @@ export const getRecipe = async (req: Request, res: Response) => {
         const take = 12
         const skip = (page - 1) * take
         // do later cost
+        // put later how much page is available
 
         const prismaRecipe = await prisma.post.findMany({
             where: {

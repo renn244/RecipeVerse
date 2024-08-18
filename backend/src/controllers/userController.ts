@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { prisma } from '../db/db'
 import { getSocketId, io } from '../socket/socket'
 import bcrypt from 'bcrypt'
-import { Prisma } from '@prisma/client'
+import { NotificationType, Prisma } from '@prisma/client'
 import { removeFile } from '../utils/removeFileUploads'
 import crypto from 'crypto'
 
@@ -68,7 +68,8 @@ export const followUser = async (req: Request, res: Response) => {
                     body: `${user.name} started following you!`, // statement
                     link: `/profile/${user.id}`, //profile of the user
                     notificationFor_Id: toFollowedId,
-                    notificationFrom_Id: user.id
+                    notificationFrom_Id: user.id,
+                    type: 'All'
                 },
                 include: {
                     notificationFrom: {
@@ -184,6 +185,39 @@ export const getNotification = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.log('error in the getNotification function in the user Controller ' + error)
         return res.status(400).json({ error : error.message })
+    }
+}
+
+export const Notification = async (req: Request, res: Response) => {
+    try {
+        const { type } = req.params
+        const user = req.user!
+        // implement pagination later
+        // made a mistake in the prisma schema in type there shouldn'e be all
+        // but it's okay just use all as common(when the notif doesn't fit the comment or post criteria as notif)
+        const isAll = type === 'All' ? undefined : {type: type as NotificationType}
+
+        const getNotifs = await prisma.notification.findMany({
+            where: {
+                notificationFor_Id: user.id,
+                ...isAll
+            },
+            include: {
+                notificationFrom: {
+                    select: {
+                        id: true,
+                        name: true,
+                        profile: true
+                    }     
+                }
+            },
+            take: 12
+        })
+
+        res.status(200).json(getNotifs)
+    } catch (error: any) {
+        console.log('error in the Notification function in the user Controller ' + error)
+        res.status(400).json({ error : error.message })
     }
 }
 
@@ -497,5 +531,3 @@ export const deleteAccount = async (req: Request, res: Response, next: NextFunct
         res.status(400).json({ error : error.message})
     }
 }
-
-// make sure to have get all notification that is based on pagination
