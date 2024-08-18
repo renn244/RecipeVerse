@@ -179,7 +179,8 @@ export const likePost = async (req: Request, res: Response) => {
                 body: `${user.name} liked your recipe post!`, // statement
                 link: `/recipe/${postId}`, //profile of the user
                 notificationFor_Id: updatePost.authorId,
-                notificationFrom_Id: user.id
+                notificationFrom_Id: user.id,
+                type: 'Posts'
             },
             include: {
                 notificationFrom: {
@@ -292,7 +293,44 @@ export const comment = async (req: Request, res: Response) => {
             }
         })
 
+        const getAuthor = await prisma.post.findFirst({
+            where: {
+                id: postId,
+            },
+            select: {
+                author: true
+            }
+        })
         
+        // NOTIFICATION!
+        if(getAuthor?.author.id) {
+            
+            const notif = await prisma.notification.create({
+                data: {
+                    body: `${user.name} left a comment in your post. click to view!`, // statement
+                    link: `/recipe/${postId}`, //profile of the user
+                    notificationFor_Id: getAuthor?.author.id,
+                    notificationFrom_Id: user.id,
+                    type: 'Comments'
+                },
+                include: {
+                    notificationFrom: {
+                        select: {
+                            id: true,
+                            name: true,
+                            profile: true
+                        }
+                    }
+                }
+            }) 
+
+            // check if it exist // it will only exist if he's online
+            // no need to send notification if he's not online
+            const socketId = await getSocketId(getAuthor?.author.id)
+            socketId && io.to(socketId).emit('notification', notif)
+        }
+
+
 
         if(!createComment) throw new Error('failed to create comment')
 
@@ -395,7 +433,8 @@ export const replyComment = async (req: Request, res: Response) => {
                     body: `${user.name} replied to your comment!`, // statement
                     link: `/recipe/${commentAuthor.postId}`, //profile of the user
                     notificationFor_Id: commentAuthor?.userId,
-                    notificationFrom_Id: user.id
+                    notificationFrom_Id: user.id,
+                    type: 'Comments'
                 },
                 include: {
                     notificationFrom: {

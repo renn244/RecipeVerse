@@ -19,6 +19,12 @@ enum NotificationStatus {
   Notviewed
 }
 
+enum NotificationType {
+  All
+  Comments
+  Posts
+}
+
 // all the important models should be in user like post recipe follows favorites etc...
 model User {
   id        String @id @default(cuid())
@@ -78,6 +84,7 @@ model Notification {
   status            NotificationStatus @default(Notviewed)
   body              String 
   link              String?
+  type              NotificationType 
   notificationFor_Id   String
   notificationFrom_Id  String
 

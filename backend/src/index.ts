@@ -19,6 +19,17 @@ import { app, server } from './socket/socket'
 
 dotenv.config()
 
+const deleteAllNotifications = async () => {
+    try {
+      await prisma.notification.findMany({});
+      console.log('All notifications have been deleted.');
+    } catch (error) {
+      console.error('Error deleting notifications:', error);
+    }
+  };
+  
+  // Call the function
+  deleteAllNotifications();
 const port = process.env.PORT ||  4000
 
 // application middlewares
