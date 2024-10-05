@@ -97,7 +97,7 @@ export const MultiFactorSendCode = async (email: string, secret: string) =>  {
             service: 'gmail',
             auth: {
                 user: 'santosblogapp@gmail.com',
-                pass: 'ymbb otnn gxda xbik'
+                pass: process.env.GMAIL_PASSWORD
             }
         })
 
