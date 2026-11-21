@@ -56,7 +56,9 @@ const Login = () => {
             placeholder="Password"
             />
             <p className="text-red-600 ml-4">{errors.password && errors.password.message}</p>
-            
+
+            <Link className="text-sm ml-2 mt-1 text-blue-700 underline-offset-4 hover:underline" to={'/forgot-password'}>Forgot password?</Link>
+
             <p className="text-sm cursor-pointer ml-2 mt-2">Don't have an Account? {" "} 
               <Link className="font-medium text-blue-700 underline-offset-4 hover:underline" to={'/signUp'}>Sign Up</Link>
             </p>
