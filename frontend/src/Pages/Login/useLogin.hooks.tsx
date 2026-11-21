@@ -28,7 +28,8 @@ const useLogin = () => {
       
       if(data.otpRequired === true) {
         // when the user use otp
-        return window.location.assign(`/otp?next=${next}&id=${data.userId}&email=${data.email}`)
+        const params = new URLSearchParams({ next: next || "/explore", id: data.userId, email: data.email })
+        return window.location.assign(`/otp?${params.toString()}`)
       }
 
       // if there was next redirect then if not then just redirect to default which is /explore
