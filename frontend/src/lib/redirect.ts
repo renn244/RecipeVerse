@@ -13,7 +13,7 @@ export const useredirect = () => {
         navigate(url)
     }
 
-    const refreshRedirect = (url: string, goback?: boolean) => {
+    const refreshRedirect = (_url: string, goback?: boolean) => {
         const location = useLocation()
         window.location.assign(`url${goback && `?next=${location.pathname}`}`)
     }

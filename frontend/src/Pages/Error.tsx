@@ -2,7 +2,7 @@
 import { useSearchParams } from 'react-router-dom'
 
 const Error = () => {
-  const [seachParams, setSearchParams] = useSearchParams()
+  const [seachParams] = useSearchParams()
   const message = seachParams.get('message') || ''
 
   return (

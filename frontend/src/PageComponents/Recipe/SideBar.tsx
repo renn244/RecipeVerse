@@ -45,7 +45,7 @@ const SideBar = ({
         onError: (error) => {
             toast.error(error.message)
         },
-        onSuccess: (data, variable, context) => {
+        onSuccess: (data, _variable, _context) => {
             if(!data) return // this means that i just return for navigate
             queryClient.setQueryData(['Viewrecipe', postId], (oldData: any) => {
                 return {
@@ -71,7 +71,7 @@ const SideBar = ({
         onError: (error) => {
             toast.error(error.message)
         },
-        onSuccess: (data, variable, context) => {
+        onSuccess: (data, _variable, _context) => {
             if(!data) return // this means that i just return for navigate
             queryClient.setQueryData(['Viewrecipe', postId], (oldData: any) => {
                 return {

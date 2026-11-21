@@ -7,7 +7,7 @@ import { API_URL } from '@/lib/api'
 
 const useLogin = () => {
   const [loading, setLoading] = useState<boolean>(false)
-  let [searchParams, setSearchParams] = useSearchParams()
+  let [searchParams] = useSearchParams()
   const next: string = searchParams.get('next') || ''
 
   const login = async (loginInfo: LoginInfoType) => {

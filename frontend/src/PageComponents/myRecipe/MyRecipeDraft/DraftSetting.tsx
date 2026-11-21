@@ -46,13 +46,13 @@ const DraftSetting = ({
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                    onClick={(e) => deleteDraft(postId)}
+                    onClick={(_e) => deleteDraft(postId)}
                     >
                         <Trash2Icon className="mr-3 h-6 w-6" />
                         <span className="text-base font-medium">Delete</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                    onClick={(e) => uploadDraft(postId)}
+                    onClick={(_e) => uploadDraft(postId)}
                     >
                         <UploadIcon className="mr-3 h-6 w-6" />
                         <span className="text-base font-medium">Upload</span>

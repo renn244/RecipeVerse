@@ -11,7 +11,6 @@ export type ExploreSearchProps = {
 }
 
 const ExploreSearch = ({
-    input,
     setInput
 } : ExploreSearchProps) => {
   const [search, setSearch] = useState('')

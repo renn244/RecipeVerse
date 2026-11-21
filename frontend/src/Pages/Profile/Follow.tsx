@@ -48,7 +48,7 @@ const Follow = ({
 
             return { previousState }
         },
-        onError(error, variables, context) {
+        onError(_error, _variables, context) {
             queryClient.setQueryData(['following'], () => context?.previousState ? context?.previousState : false)
             toast.error('failed to follow')
         },
@@ -80,7 +80,7 @@ const Follow = ({
             return { previousState }
             
         },
-        onError(error, variables, context) {
+        onError(_error, _variables, context) {
             queryClient.setQueryData(['following'], () => context?.previousState ? context?.previousState : true)
             toast.error('failed to unfollow')
         },

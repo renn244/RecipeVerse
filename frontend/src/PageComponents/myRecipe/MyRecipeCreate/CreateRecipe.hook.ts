@@ -1,4 +1,4 @@
-import { Recipe } from '@/Pages/Explore/Explore'
+import type { recipeInfoType } from '../MyRecipeForm/MyRecipeCreate'
 import { useState } from 'react'
 import formData from './formData.utils'
 import { useNavigate } from 'react-router-dom'
@@ -8,7 +8,7 @@ const useCreateRecipe = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const navigate = useNavigate()
 
-  const create = async (recipeData: Recipe) => {
+  const create = async (recipeData: recipeInfoType) => {
     setLoading(true)
     try {
       //make form Data for photo handling
@@ -32,7 +32,7 @@ const useCreateRecipe = () => {
     }
   }
 
-  const saveDraft = async (recipeData: Recipe) => {
+  const saveDraft = async (recipeData: recipeInfoType) => {
     try {
       const formdata = formData(recipeData)
 
