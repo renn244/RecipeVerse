@@ -29,34 +29,25 @@ const NavBar = () => {
                         className={({ isActive}) =>
                             `${isActive ? "underline-offset-8 underline" : ""} navlink `
                         }
-                        to={'/Explore'}
+                        to={'/explore'}
                         >
                             Explore 
                         </NavLink>
 
-                        <NavLink
+                        {authenticated && <NavLink
                         className={({ isActive}) =>
                             `${isActive ? "underline-offset-8 underline" : ""} navlink `
                         }
-                        to={'/Vission'}
+                        to={'/myrecipe/dashboard'}
                         >
-                            Vission
-                        </NavLink>
+                            My Recipes
+                        </NavLink>}
 
                         <NavLink
                         className={({ isActive}) =>
                             `${isActive ? "underline-offset-8 underline" : ""} navlink `
                         }
-                        to={'/Examples'}
-                        >
-                           Examples
-                        </NavLink>
-
-                        <NavLink
-                        className={({ isActive}) =>
-                            `${isActive ? "underline-offset-8 underline" : ""} navlink `
-                        }
-                        to={'/About'}
+                        to={'/about'}
                         >
                             About
                         </NavLink>
@@ -67,7 +58,7 @@ const NavBar = () => {
                         {/* make a dynamic where if not logged in then render this but if login in then render log out or select menu something */}
                         {
                             !authenticated ? 
-                            <div>
+                            <div className='flex gap-2'>
                                 <Link to={`/login?next=${location.pathname}`}>
                                     <Button 
                                     variant={'outline'} 
@@ -78,7 +69,7 @@ const NavBar = () => {
 
                                 <Link to={'/signUp'}>
                                     <Button className='text-base'>
-                                        sign Up
+                                        Sign Up
                                     </Button>
                                 </Link>
                             </div> :
