@@ -1,0 +1,9 @@
+node_modules/
+.env
+dist/
+
+# user uploads are runtime data, not source
+backend/uploads/**
+!backend/uploads/Avatars/
+!backend/uploads/RecipePhotos/
+!backend/uploads/**/.gitkeep
