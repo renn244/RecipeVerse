@@ -1,19 +1,42 @@
+import { useState } from "react"
+import { Link } from "react-router-dom"
 import { format } from "date-fns"
 import { PostDataType } from "./Dashboard"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card"
-import { HeartIcon, MessageSquareIcon, EyeIcon, MoreHorizontalIcon } from "lucide-react"
+import { HeartIcon, MessageSquareIcon, EyeIcon, MoreHorizontalIcon, PencilIcon, Trash2Icon, ExternalLinkIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-  
+import { Button } from "@/components/ui/button"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import PaginationNav from "@/PageComponents/explore/Pagination"
+import DeleteRecipeDialog from "@/PageComponents/Recipe/DeleteRecipeDialog"
+
 
 type PostTableProps = {
     posts: PostDataType[],
-
+    page: number,
+    totalPages: number,
+    onPageChange: (page: number) => void,
+    onDeleted: () => void,
 }
 
 const PostTable = ({
-    posts
+    posts,
+    page,
+    totalPages,
+    onPageChange,
+    onDeleted
 } : PostTableProps) => {
+  // the post waiting for delete confirmation (dialog lives outside the menu)
+  const [toDelete, setToDelete] = useState<PostDataType | null>(null)
+
   return (
     <Card>
         <CardHeader className="px-8">
@@ -21,7 +44,7 @@ const PostTable = ({
             <CardDescription>Contains all the post you have</CardDescription>
         </CardHeader>
         <CardContent>
-            <div className="h-[600px] overflow-y-auto">
+            <div className="min-h-[200px]">
                 <Table>
                     <TableCaption>Post Stats</TableCaption>
                     <TableHeader>
@@ -33,7 +56,7 @@ const PostTable = ({
                     </TableHeader>
                     <TableBody>
                         {posts.map((post) => (
-                            <TableRow>
+                            <TableRow key={post.id}>
 
                                 <TableCell>
                                     <div>
@@ -44,7 +67,7 @@ const PostTable = ({
 
                                 <TableCell>
                                     {
-                                        post.status === 'draft' ? 
+                                        post.status === 'draft' ?
                                             <Badge className="text-base ml-5">{post.status}</Badge>
                                         :
                                         <div className="h-[55px] flex gap-4 items-center">
@@ -68,49 +91,53 @@ const PostTable = ({
                                 </TableCell>
 
                                 <TableCell>
-                                    <MoreHorizontalIcon />
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant={'ghost'} aria-label="recipe actions">
+                                                <MoreHorizontalIcon />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent side={'right'} align="start" className="w-40 px-2">
+                                            <DropdownMenuLabel>Recipe</DropdownMenuLabel>
+                                            <DropdownMenuSeparator />
+                                            {post.status === 'post' && (
+                                                <DropdownMenuItem asChild>
+                                                    <Link to={`/recipe/${post.id}`}>
+                                                        <ExternalLinkIcon className="mr-3 h-5 w-5" />
+                                                        <span className="text-base font-medium">View</span>
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                            )}
+                                            <DropdownMenuItem asChild>
+                                                <Link to={`/myrecipe/edit/${post.id}`}>
+                                                    <PencilIcon className="mr-3 h-5 w-5" />
+                                                    <span className="text-base font-medium">Edit</span>
+                                                </Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                            className="text-destructive"
+                                            onSelect={() => setToDelete(post)}>
+                                                <Trash2Icon className="mr-3 h-5 w-5" />
+                                                <span className="text-base font-medium">Delete</span>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </TableCell>
-                                
+
                             </TableRow>
                         ))}
                     </TableBody>
-                    <div className="">
-                        {/* HAVING A HARD TIME ON PAGINATION DO LATER
-                        
-                        <Pagination>
-                            <PaginationContent>
-
-                                <PaginationItem>
-                                    <PaginationPrevious href="#" />
-                                </PaginationItem>
-
-                                <PaginationItem>
-                                    <PaginationLink href="#">1</PaginationLink>
-                                </PaginationItem>
-                                
-                                <PaginationItem>
-                                    <PaginationLink href="#" isActive>
-                                        2
-                                    </PaginationLink>
-                                </PaginationItem>
-
-                                <PaginationItem>
-                                    <PaginationLink href="#">3</PaginationLink>
-                                </PaginationItem>
-
-                                <PaginationItem>
-                                    <PaginationEllipsis />
-                                </PaginationItem>
-
-                                <PaginationItem>
-                                    <PaginationNext href="#" />
-                                </PaginationItem>
-
-                            </PaginationContent>
-                        </Pagination> */}
-                    </div>
                 </Table>
             </div>
+            <div className="mt-4">
+                <PaginationNav page={page} totalPages={totalPages} onPageChange={onPageChange} />
+            </div>
+            <DeleteRecipeDialog
+            postId={toDelete?.id ?? null}
+            title={toDelete?.recipe.title}
+            open={!!toDelete}
+            onOpenChange={(open) => !open && setToDelete(null)}
+            onDeleted={onDeleted} />
         </CardContent>
     </Card>
   )
