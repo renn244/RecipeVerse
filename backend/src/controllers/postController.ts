@@ -102,11 +102,18 @@ export const getPostId = async (req: Request, res: Response) => {
             where: { userId_postId: { userId: user.id, postId: post.id } }
         })) : false
 
+        // ratings: average, count and the current user's own rating
+        const ratingStats = await prisma.rating.aggregate({ where: { postId: post.id }, _avg: { value: true }, _count: { value: true } })
+        const myRating = user ? (await prisma.rating.findUnique({ where: { userId_postId: { userId: user.id, postId: post.id } } }))?.value ?? 0 : 0
+
         const updateFavoriteCount = {
             ...post,
             favoriteCount,
             isFavorited: isFavorited ? true : false,
-            isLiked
+            isLiked,
+            averageRating: ratingStats._avg.value ? Math.round(ratingStats._avg.value * 10) / 10 : 0,
+            ratingCount: ratingStats._count.value,
+            myRating
         }
 
         //add the post count to the author object
@@ -625,5 +632,39 @@ export const deleteChildComment = async (req: Request, res: Response) => {
     } catch (error: any) {
         console.log('error in the deleteChildComment function in the post Controller ' + error)
         res.status(400).json({ error: error.message })
+    }
+}
+
+// rate a recipe 1-5 stars; rating again replaces your previous rating
+export const ratePost = async (req: Request, res: Response) => {
+    try {
+        const { postId } = req.params
+        const value = parseInt(req.body.value)
+        const user = req.user
+
+        if(!user) throw new Error('not authenticated')
+        if(!(value >= 1 && value <= 5)) throw new Error('rating must be between 1 and 5')
+
+        const post = await prisma.post.findFirst({ where: { id: postId, status: 'post' }, select: { authorId: true } })
+        if(!post) throw new Error('recipe not found')
+        if(post.authorId === user.id) throw new Error("you can't rate your own recipe")
+
+        await prisma.rating.upsert({
+            where: { userId_postId: { userId: user.id, postId } },
+            create: { userId: user.id, postId, value },
+            update: { value }
+        })
+
+        const stats = await prisma.rating.aggregate({ where: { postId }, _avg: { value: true }, _count: { value: true } })
+        return res.status(200).json({
+            success: true,
+            message: 'thanks for rating!',
+            myRating: value,
+            averageRating: stats._avg.value ? Math.round(stats._avg.value * 10) / 10 : 0,
+            ratingCount: stats._count.value
+        })
+    } catch (error: any) {
+        console.log('error in the ratePost function in the postController Error: ' + error)
+        return res.status(400).json({ error : error.message })
     }
 }

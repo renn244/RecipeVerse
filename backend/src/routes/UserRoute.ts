@@ -1,6 +1,6 @@
 import { Router } from 'express' 
 import { ensureAuthenticated, optionalAuthenticated } from '../utils/ensureAuthenticated'
-import { changeAvatar, changePassword, changeUserInfo, changeUsername, deleteAccount, enable2FA, followUser, 
+import { getFavorites, changeAvatar, changePassword, changeUserInfo, changeUsername, deleteAccount, enable2FA, followUser, 
 getNotification, getProfile, getUserInfo, isFollowing, Notification, unfollowUser } from '../controllers/userController'
 import multer from 'multer'
 import diskStorage from '../utils/multerStorage'
@@ -24,6 +24,8 @@ router.get('/Notification/:type', ensureAuthenticated, Notification)
 //GET
 
 router.get('/getUserInfo', ensureAuthenticated, getUserInfo)
+
+router.get('/favorites', ensureAuthenticated, getFavorites)
 
 //CHANGE
 router.post('/changeUserInfo', ensureAuthenticated, changeUserInfo)
