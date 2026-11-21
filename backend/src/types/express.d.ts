@@ -17,4 +17,11 @@ declare module 'passport-local' {
     }
 }
 
+// Recipes this browser session has already been counted as viewing
+declare module 'express-session' {
+    interface SessionData {
+        viewedPosts?: string[]
+    }
+}
+
 export {}
