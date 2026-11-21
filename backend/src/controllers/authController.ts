@@ -109,21 +109,15 @@ export const MultiFactorSendCode = async (email: string, secret: string) =>  {
             html: `<h2>${token}</h2>`
         }
 
-        transporter.sendMail(mailOptions, (err, info) => {
-            if(err) {
-                console.log('error in the sendMail util', err)
-                throw new Error('failed to send Email')
-            } else {
-                console.log('Email sent', info.response)
-                return token
-            }
-        })
-        console.log(totp.timeRemaining())
+        // await the promise form so a failed send is caught below
+        // (throwing inside the callback form crashed the whole server)
+        const info = await transporter.sendMail(mailOptions)
+        console.log('Email sent', info.response)
 
         return token
     } catch (error: any) {
         console.log('error in the MultiFactorSendCode function in the auth Controller ' + error)
-        // res.status(400).json({ error : error.message })
+        return undefined
     }
 }
 
@@ -186,8 +180,10 @@ export const ResendOtpCode = async (req: Request, res: Response) => {
             }
         })
 
-        const otpCode = await MultiFactorSendCode(getUserInfo?.userInfo?.email!, getUserInfo?.secret!)
+        if(!getUserInfo?.userInfo?.email || !getUserInfo.secret) throw new Error('2FA is not set up for this account')
 
+        const otpCode = await MultiFactorSendCode(getUserInfo.userInfo.email, getUserInfo.secret)
+        if(!otpCode) throw new Error('failed to send the OTP email, please try again')
 
         res.status(200).json({
             success: true,
