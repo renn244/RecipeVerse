@@ -189,6 +189,19 @@ export const uploadDraft = async (req: Request, res: Response) => {
 
         if(!postId) throw new Error('post Id is undefined')
 
+        // only the author can publish, and only once the required fields are filled in
+        const draft = await prisma.post.findUnique({ where: { id: postId }, include: { recipe: true } })
+        if(!draft || draft.authorId !== req.user?.id) return res.status(403).json({ error: 'you can only publish your own drafts' })
+        const r = draft.recipe
+        const missing = [
+            !r?.title && 'title',
+            !r?.description && 'description',
+            !r?.cuisine && 'cuisine',
+            !r?.cookingTime && 'cooking time',
+            !r?.servings && 'servings',
+        ].filter(Boolean)
+        if(missing.length) return res.status(400).json({ error: `fill in ${missing.join(', ')} before publishing` })
+
         const updateStatus = await prisma.post.update({
             where: {
                 id: postId
@@ -216,11 +229,14 @@ export const Delete = async (req: Request, res: Response) => {
 
         if(!postId) throw new Error('post Id is undefined')
 
-        const deletePost = await prisma.post.delete({
+        // only delete it if it belongs to the logged-in user
+        const deletePost = await prisma.post.deleteMany({
             where: {
-                id: postId
+                id: postId,
+                authorId: req.user?.id
             }
         })
+        if(deletePost.count === 0) return res.status(403).json({ error: 'you can only delete your own posts' })
 
         res.status(200).json({ message : 'Successfully deleted a post'})
     } catch (error: any) {
@@ -253,20 +269,22 @@ export const SaveDraft = async (req: Request, res: Response) => {
                 images = filenames.map((filename) => `${process.env.SERVER_URL || 'http://localhost:4000'}/recipePhoto/${filename.filename}`)
             }
 
+            // drafts can be incomplete: fall back to empty values instead of
+            // NaN / null, which the schema rejects (cuisine, numbers are required)
             await txprisma.recipe.create({
                 data: {
                     postId: createPost.id,
-                    title: recipeData.title,
+                    title: recipeData.title || 'Untitled draft',
                     image: images,
-                    description: recipeData.description,
-                    cookingTime: parseInt(recipeData.cookingTime),
-                    servings: parseInt(recipeData.servings),
-                    cost: cost,
+                    description: recipeData.description || '',
+                    cookingTime: parseInt(recipeData.cookingTime) || 0,
+                    servings: parseInt(recipeData.servings) || 0,
+                    cost: cost || 0,
                     mealType: recipeData.mealType || null,
-                    cuisine: recipeData.cuisine || null,
+                    cuisine: recipeData.cuisine || '',
                     mealPreference: recipeData.mealPreference || null,
-                    instruction: recipeData.instruction,
-                    ingredients: recipeData.ingredients
+                    instruction: recipeData.instruction || '',
+                    ingredients: recipeData.ingredients || []
                 }
             })
 

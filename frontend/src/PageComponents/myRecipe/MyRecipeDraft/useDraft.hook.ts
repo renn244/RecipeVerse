@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { DraftDataType } from './MyRecipeDraft'
 import { API_URL } from '@/lib/api'
+import toast from 'react-hot-toast'
 
 const useDraft = () => {
     const [draftData, setDraftData] = useState<DraftDataType[] >([])
@@ -25,6 +26,7 @@ const useDraft = () => {
             setDraftData(filterData)
         } catch (error: any) {
             console.log('error in the deleteDraft function in the useDraft hook Error: ' + error.message)
+            toast.error(error.message)
             return { error: error.message }
         }
     }
@@ -48,6 +50,7 @@ const useDraft = () => {
             setDraftData(filterData)
         } catch (error: any) {
             console.log('error in the deleteDraft function in the useDraft hook Error: ' + error.message)
+            toast.error(error.message)
             return { error: error.message }
         }
     }
