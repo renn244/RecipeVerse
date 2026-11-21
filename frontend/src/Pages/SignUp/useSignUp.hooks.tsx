@@ -1,12 +1,13 @@
 import { useState } from "react"
 import { SignUpInfoType } from "./SignUp"
 import { API_URL } from '@/lib/api'
+import toast from 'react-hot-toast'
 
 const useSignUp = () => {
   const [loading, setLoading] = useState<boolean>(false)
 
   const signup = async (signUpInfo: SignUpInfoType) => {
-    if(!signUpInfo.username || !signUpInfo.password) return
+    if(!signUpInfo.username || !signUpInfo.password) return toast.error('Please enter a username and password')
     setLoading(true)
     try {
       const res: Response = await fetch(`${API_URL}/api/auth/signup`, {
@@ -25,7 +26,7 @@ const useSignUp = () => {
       window.location.assign('/login')
     } catch (error: any) {
       console.log(`Error in the useSignUp hook Error: ${error.message}`)
-      // put toast here that says the error
+      toast.error(error.message)
     } finally {
       setLoading(false)
     }

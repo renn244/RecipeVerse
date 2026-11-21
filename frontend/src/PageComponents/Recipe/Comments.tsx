@@ -5,7 +5,7 @@ import { childComment, Comment } from './RecipeBody'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { format } from 'date-fns'
-import { MessageCircleIcon, ThumbsUpIcon } from 'lucide-react'
+import { MessageCircleIcon, ThumbsUpIcon, Trash2Icon } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Dispatch, FormEvent, SetStateAction, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -316,13 +316,13 @@ const ChildCommentButton = ({
           <div aria-label='deleteComment' className='flex items-center m-1 p-1 cursor-pointer rounded-xl hover:bg-muted' >
             {/* specifying deletePending and commentid for onely one loading when deleting */}
             <Button 
-            className='flex items-center justify-center w-[126px] hover:'
+            className='flex items-center justify-center w-[100px]'
             disabled={deletePending && CommentId === commentId}
             onClick={() => deleteComment(commentId)}
             size={'sm'}
             variant={'destructive'}
             >
-              {deletePending && commentId === commentId ? <LoadingSpinner className='h-3 w-3' /> : 'deleteComment' } 
+              {deletePending && commentId === commentId ? <LoadingSpinner className='h-3 w-3' /> : <><Trash2Icon className='h-4 w-4 mr-1' /> Delete</> } 
             </Button>
           </div>
         }
@@ -457,13 +457,13 @@ const CommentButton = ({
           <div aria-label='deleteComment' className='flex items-center m-1 p-1 cursor-pointer rounded-xl hover:bg-muted' >
             {/* specifying deletePending and commentid for onely one loading when deleting */}
             <Button 
-            className='flex items-center justify-center w-[126px] hover:'
+            className='flex items-center justify-center w-[100px]'
             disabled={deletePending && CommentId === commentId}
             onClick={() => deleteComment(commentId)}
             size={'sm'}
             variant={'destructive'}
             >
-              {deletePending && commentId === commentId ? <LoadingSpinner className='h-3 w-3' /> : 'deleteComment' } 
+              {deletePending && commentId === commentId ? <LoadingSpinner className='h-3 w-3' /> : <><Trash2Icon className='h-4 w-4 mr-1' /> Delete</> } 
             </Button>
           </div>
         }
