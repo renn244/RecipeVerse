@@ -3,7 +3,7 @@ import { Strategy as LocalStrategy } from 'passport-local'
 import dotenv from 'dotenv'
 import bcrypt from 'bcrypt'
 import { prisma } from '../db/db'
-import { MultiFactorSendCode } from '../controllers/authController.'
+import { MultiFactorSendCode } from '../controllers/authController'
 
 dotenv.config()
 // not tested

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { ensureAuthenticated } from '../utils/ensureAuthenticated'
-import { Delete, getAllPost, getDraft, getPostStats, SaveDraft, searchDraft, uploadDraft } from '../controllers/DashboardContoller'
+import { Delete, getAllPost, getDraft, getPostStats, SaveDraft, searchDraft, uploadDraft } from '../controllers/DashboardController'
 import multer from 'multer'
 import diskStorage from '../utils/multerStorage'
 
