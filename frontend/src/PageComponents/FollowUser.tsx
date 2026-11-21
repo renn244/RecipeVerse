@@ -52,11 +52,11 @@ const FollowUser = ({
 
             return { previousState }
         },
-        onError(error, variables, context) {
+        onError(_error, _variables, context) {
             queryClient.setQueryData(['following', authorId], () => context?.previousState ? context?.previousState : false)
             toast.error('failed to follow')
         },
-        onSuccess: (data, variable, context) => {
+        onSuccess: (_data, _variable, _context) => {
 
             queryClient.setQueryData(['Viewrecipe', postId], (oldData: any) => {
                 if(!oldData) return
@@ -95,11 +95,11 @@ const FollowUser = ({
 
             return { previousState }
         },
-        onError(error, variables, context) {
+        onError(_error, _variables, context) {
             queryClient.setQueryData(['following', authorId], () => context?.previousState)
             toast.error('failed to unfollow')
         },
-        onSuccess: (data, variable, context) => {
+        onSuccess: (_data, _variable, _context) => {
 
             queryClient.setQueryData(['Viewrecipe', postId], (oldData: any) => {
                 if(!oldData) return

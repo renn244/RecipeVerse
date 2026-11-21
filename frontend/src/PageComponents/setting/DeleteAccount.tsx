@@ -4,10 +4,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { useredirect } from "@/lib/redirect"
 import { useMutation } from "@tanstack/react-query"
-import { totalmem } from "os"
 import { useState } from "react"
 import toast from "react-hot-toast"
-import { useActionData } from "react-router-dom"
 import { API_URL } from '@/lib/api'
 
 
@@ -36,7 +34,7 @@ const DeleteModal = () => {
     const [password, setPassword] = useState<string>('')
     const [openModal, setOpenModal] = useState<boolean>(false)
 
-    const { NavigateWithNext, redirect } = useredirect()
+    const { NavigateWithNext } = useredirect()
 
     const { mutate: DeleteAccount, isPending } = useMutation({
         mutationFn: async () => {

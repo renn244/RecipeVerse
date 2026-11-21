@@ -8,8 +8,7 @@ import { API_URL } from '@/lib/api'
 
 const Otp = () => {
     const [otp, setOtp]= useState<string[]>(Array(6).fill(''))
-    const [seachParams, setSearchParams] = useSearchParams()
-    const [time, setTime] = useState<number>()
+    const [seachParams] = useSearchParams()
 
     // impement showing time and also auto resending when time is up(optional)
 

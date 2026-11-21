@@ -52,7 +52,6 @@ const RecipeBody = ({
     postId,
     createdAt,
     recipe,
-    author,
     comments
 } : RecipeBodyType) => {
 

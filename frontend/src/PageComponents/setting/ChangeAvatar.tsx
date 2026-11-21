@@ -7,7 +7,6 @@ import { useState } from 'react'
 import { handleDrag, handleDrop, handleFileChange } from '@/lib/FileInput_utils'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { UploadIcon } from 'lucide-react'
-import { useAuthContext } from '@/context/authContext'
 import { API_URL } from '@/lib/api'
 
 type ChangeAvatarProps = {

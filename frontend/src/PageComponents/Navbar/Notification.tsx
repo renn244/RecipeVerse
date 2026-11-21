@@ -38,7 +38,7 @@ const NotificationButton = () => {
     const socket = useSocketContext()
     const queryClient = useQueryClient();
 
-    const { data, isLoading, error } = useQuery({
+    const { data, isLoading } = useQuery({
         queryKey: ['Notification'],
         queryFn: async () => {
             const res = await fetch(`${API_URL}/api/user/getNotification`, {

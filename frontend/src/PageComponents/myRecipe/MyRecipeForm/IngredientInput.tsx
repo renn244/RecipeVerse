@@ -28,7 +28,7 @@ const IngredientInput = ({
     const addToIngredients = () => {
         if(!ingredientInput) return // don't add if no input yet
 
-        const newingredientsArr = [...recipeInfo.ingredients]
+        const newingredientsArr = [...(recipeInfo.ingredients ?? [])]
         newingredientsArr.push(ingredientInput)
 
         setRecipeInfo((prev) => ({
@@ -40,7 +40,7 @@ const IngredientInput = ({
     }
 
     const removeIngredients = () => {
-        const newArr = [...recipeInfo.ingredients]
+        const newArr = [...(recipeInfo.ingredients ?? [])]
         const filteredArray = newArr.filter((item) => item !== removeIngredient)
 
         setRecipeInfo((prev) => ({
@@ -73,7 +73,7 @@ const IngredientInput = ({
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>remove</SelectLabel>
-                                {recipeInfo.ingredients.map((ingredient, idx) => {
+                                {(recipeInfo.ingredients ?? []).map((ingredient, idx) => {
                                     return (
                                         <SelectItem key={idx} value={ingredient}>{ingredient}</SelectItem>
                                     )

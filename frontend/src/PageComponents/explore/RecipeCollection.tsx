@@ -3,7 +3,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 
 import { FaStar } from "react-icons/fa";
 import { FaStarHalf } from "react-icons/fa";
-import { ComponentProps, memo } from "react";
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { ClassValue } from "clsx";

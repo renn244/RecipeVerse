@@ -20,7 +20,7 @@ export type PostDataType = {
 const Dashboard = () => {
   
   // emplot apgination later
-  const { post, getpostDashboard } = useDashboard()
+  const { post } = useDashboard()
 
   return (
     <div>

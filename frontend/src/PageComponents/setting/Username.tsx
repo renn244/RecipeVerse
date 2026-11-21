@@ -17,7 +17,7 @@ const Username = ({
     const [username, setUsername] = useState<string>(initialUsername || '')
 
     const queryClient = useQueryClient()
-    const { mutate: changeUsername, isPending } = useMutation({
+    const { mutate: changeUsername } = useMutation({
         mutationFn: async () => {
             if(!username) throw new Error('empty username is not valid')
             const res = await fetch(`${API_URL}/api/user/changeusername`, {

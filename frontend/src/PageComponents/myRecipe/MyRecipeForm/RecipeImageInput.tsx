@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { recipeInfoType } from "./MyRecipeCreate"
-import { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
+import { ChangeEvent, Dispatch, SetStateAction } from "react"
 import toast from "react-hot-toast"
 
 type RecipeImageInputProps = {

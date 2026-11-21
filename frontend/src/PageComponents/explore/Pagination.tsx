@@ -2,7 +2,6 @@ import { SetURLSearchParams } from "react-router-dom"
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,

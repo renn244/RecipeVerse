@@ -6,7 +6,7 @@ const RecipeSkeleton = () => {
 
     return (
         <div className="w-full grid grid-cols-4 gap-5">
-            {Array(8).fill(null).map((value, idx) => {
+            {Array(8).fill(null).map((_value, idx) => {
                 return (
                     <Card key={idx} className="flex flex-col items-center w-[280px] shadow-md">
                         <CardHeader className="p-3">

@@ -2,16 +2,15 @@ import { FormEvent, useEffect, useState } from 'react'
 import MyRecipeForm, { recipeInfoType } from '../MyRecipeForm/MyRecipeCreate'
 import EditRecipe from './EditRecipe.hook'
 import LoadingSpinner from '@/PageComponents/LoadingSpinner'
-import {  useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import { useAuthContext } from '@/context/authContext'
 
 
 const MyRecipeEdit = () => {
-    const navigate = useNavigate()
     const { postId } = useParams()
     const [recipeData, setRecipeData] = useState<recipeInfoType>()
 
-    if(!postId) return navigate('/error')
+    if(!postId) return <Navigate to='/error' replace />
 
     const { saveEdit, getData } = EditRecipe()
     const { user } = useAuthContext()

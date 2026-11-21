@@ -265,7 +265,7 @@ const ChildCommentButton = ({
       if(data.error) throw new Error(data.error)
       return data
     },
-    onSuccess: (data, commentId) => {
+    onSuccess: (_data, _commentId) => {
       queryClient.invalidateQueries({ queryKey: ['Viewrecipe', postId] })
     },
   })
@@ -381,7 +381,7 @@ const CommentButton = ({
 
       return { previousState }
     },
-    onError: (error, variables, context) => {
+    onError: (error, _variables, context) => {
       toast.error(error.message)
 
       queryClient.setQueryData(['Viewrecipe', postId], context?.previousState)
@@ -401,7 +401,7 @@ const CommentButton = ({
       if(data.error) throw new Error(data.error)
       return data
     },
-    onSuccess: (data, commentId) => {
+    onSuccess: (_data, commentId) => {
       queryClient.setQueryData(['Viewrecipe', postId], (oldData: any) => {
         return {
           ...oldData,
@@ -508,7 +508,7 @@ const ReplyComment = ({
       if(data.error) throw new Error(data.error)
       return data
     },
-    onSuccess: (data: childComment, event, context) => {
+    onSuccess: (data: childComment, _event, _context) => {
       // updating the childs comment
       queryClient.setQueryData(['Viewrecipe', postId], (oldData: any) => {
         return {

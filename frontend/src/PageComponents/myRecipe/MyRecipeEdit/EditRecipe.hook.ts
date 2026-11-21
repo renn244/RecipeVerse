@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { recipeInfoType } from '../MyRecipeForm/MyRecipeCreate'
 import formData from '../MyRecipeCreate/formData.utils'
 import { API_URL } from '@/lib/api'
