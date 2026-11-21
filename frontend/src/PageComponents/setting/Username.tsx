@@ -5,6 +5,7 @@ import { Label } from "@radix-ui/react-label"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import toast from "react-hot-toast"
+import { API_URL } from '@/lib/api'
 
 type UsernameProps = {
     initialUsername: string
@@ -19,7 +20,7 @@ const Username = ({
     const { mutate: changeUsername, isPending } = useMutation({
         mutationFn: async () => {
             if(!username) throw new Error('empty username is not valid')
-            const res = await fetch('http://localhost:4000/api/user/changeusername', {
+            const res = await fetch(`${API_URL}/api/user/changeusername`, {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json'

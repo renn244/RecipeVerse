@@ -2,6 +2,7 @@ import { Recipe } from '@/Pages/Explore/Explore'
 import { useState } from 'react'
 import formData from './formData.utils'
 import { useNavigate } from 'react-router-dom'
+import { API_URL } from '@/lib/api'
 
 const useCreateRecipe = () => {
   const [loading, setLoading] = useState<boolean>(false)
@@ -13,7 +14,7 @@ const useCreateRecipe = () => {
       //make form Data for photo handling
       const formdata = formData(recipeData)
 
-      const res: Response = await fetch('http://localhost:4000/api/recipe/create', {
+      const res: Response = await fetch(`${API_URL}/api/recipe/create`, {
         method: 'POST',
         body: formdata,
         credentials: 'include'
@@ -35,7 +36,7 @@ const useCreateRecipe = () => {
     try {
       const formdata = formData(recipeData)
 
-      const res: Response = await fetch('http://localhost:4000/api/dashboard/saveDraft', {
+      const res: Response = await fetch(`${API_URL}/api/dashboard/saveDraft`, {
         method: 'POST',
         body: formdata,
         credentials: 'include'

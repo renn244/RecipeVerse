@@ -3,6 +3,7 @@ import LoadingSpinner from "@/PageComponents/LoadingSpinner"
 import { useQuery } from "@tanstack/react-query"
 import { Navigate, useParams } from "react-router-dom"
 import ProfileInfo from "./ProfileInfo"
+import { API_URL } from '@/lib/api'
 
 
 const Profile = () => {
@@ -11,7 +12,7 @@ const Profile = () => {
     const { data: profileInfo, isLoading, error } = useQuery({
         queryKey: ['profileInfo'],
         queryFn: async () => {
-            const res = await fetch(`http://localhost:4000/api/user/getProfile/${id}`)
+            const res = await fetch(`${API_URL}/api/user/getProfile/${id}`)
             const data = await res.json()
             if(data.error) throw new Error(data.error)
             return data

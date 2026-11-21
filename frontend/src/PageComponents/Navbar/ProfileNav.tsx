@@ -13,6 +13,7 @@ import { useAuthContext } from '@/context/authContext'
 import { Link } from 'react-router-dom'
 import { LogOutIcon, UserRoundIcon, ClipboardListIcon, SettingsIcon } from 'lucide-react'
 import { useState } from 'react'
+import { API_URL } from '@/lib/api'
   
 
 
@@ -21,10 +22,10 @@ const ProfileNav = () => {
     const { user } = useAuthContext()
 
     const logOut = async () => {
-        const res = await fetch('http://localhost:4000/api/auth/logout', { credentials: 'include' })
+        const res = await fetch(`${API_URL}/api/auth/logout`, { credentials: 'include' })
         const data = await res.json()
         if(data.error) return toast.error('failed to log out') 
-        window.location.assign(`http://localhost:3000${location.pathname}`)
+        window.location.assign(`${location.pathname}`)
     }
     
     return (

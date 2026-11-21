@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import LoadingSpinner from '../LoadingSpinner'
 import { Textarea } from '@/components/ui/textarea'
+import { API_URL } from '@/lib/api'
 
 type profileInfoType = {
     name: string,
@@ -38,7 +39,7 @@ const Profile = ({
         mutationFn: async () => {
             if(!profileInfo.name) throw new Error('blank name is not allowed')
 
-            const res = await fetch('http://localhost:4000/api/user/changeUserInfo', {
+            const res = await fetch(`${API_URL}/api/user/changeUserInfo`, {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json'

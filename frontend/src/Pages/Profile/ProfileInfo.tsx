@@ -49,7 +49,7 @@ const ProfileInfo = ({
                         {
                             isOwner ? 
                             <Button 
-                            onClick={() => window.location.assign('http://localhost:3000/settings')}
+                            onClick={() => window.location.assign('/settings')}
                             className="w-[350px] rounded-lg">
                                 Edit Profile
                             </Button> : 

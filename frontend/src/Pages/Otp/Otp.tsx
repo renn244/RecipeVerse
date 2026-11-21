@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query"
 import { ChangeEvent, KeyboardEvent, useState } from "react"
 import { Navigate, useSearchParams } from "react-router-dom"
 import ResendCode from "./ResendCode"
+import { API_URL } from '@/lib/api'
 
 const Otp = () => {
     const [otp, setOtp]= useState<string[]>(Array(6).fill(''))
@@ -66,7 +67,7 @@ const Otp = () => {
 
     const { mutate: submitOtp, isPending, error } = useMutation({
         mutationFn: async () => {
-            const res = await fetch('http://localhost:4000/api/auth/verifyOtpCode', {
+            const res = await fetch(`${API_URL}/api/auth/verifyOtpCode`, {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json'
@@ -83,7 +84,7 @@ const Otp = () => {
         },
         onSuccess: (data) => {
             if(data.success === true) {
-                window.location.assign(`http://localhost:3000${next}`)
+                window.location.assign(`${next}`)
             } else if(data.success === false) {
                 throw new Error(data.message)
             }

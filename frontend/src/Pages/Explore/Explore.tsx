@@ -6,6 +6,7 @@ import ExploreSearch from "@/PageComponents/explore/Search"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useSearchParams } from "react-router-dom"
+import { API_URL } from '@/lib/api'
 
 export type FilterType = {
     search?: string
@@ -47,7 +48,7 @@ const Explore = () => {
     const { data, isLoading } = useQuery({
         queryKey: ['recipeCollection', filter, page],
         queryFn: async () => {
-            const res = await fetch('http://localhost:4000/api/recipe/getRecipe',{
+            const res = await fetch(`${API_URL}/api/recipe/getRecipe`,{
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json'

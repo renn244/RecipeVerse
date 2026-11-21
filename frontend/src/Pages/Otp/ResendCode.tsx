@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query"
 import toast from "react-hot-toast"
+import { API_URL } from '@/lib/api'
 
 type ResendCodeProps = {
     userId: string
@@ -11,7 +12,7 @@ const ResendCode = ({
 
     const { mutate: resendOtp, isPending } = useMutation({
         mutationFn: async () => {
-            const res = await fetch('http://localhost:4000/api/auth/resendOtp', {
+            const res = await fetch(`${API_URL}/api/auth/resendOtp`, {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json'

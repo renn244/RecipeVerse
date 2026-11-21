@@ -8,6 +8,7 @@ import { totalmem } from "os"
 import { useState } from "react"
 import toast from "react-hot-toast"
 import { useActionData } from "react-router-dom"
+import { API_URL } from '@/lib/api'
 
 
 const DeleteAccount = () => {
@@ -40,7 +41,7 @@ const DeleteModal = () => {
     const { mutate: DeleteAccount, isPending } = useMutation({
         mutationFn: async () => {
             if(!password) throw new Error('password is empty')
-            const res = await fetch('http://localhost:4000/api/user/deleteAccount', {
+            const res = await fetch(`${API_URL}/api/user/deleteAccount`, {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json'
@@ -60,7 +61,7 @@ const DeleteModal = () => {
         },
         onSuccess: (data) => {
             if(data.success === true) {
-                window.location.assign('http://localhost:3000/login')
+                window.location.assign('/login')
             }
         }
     })
