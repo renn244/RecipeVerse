@@ -155,10 +155,27 @@ export const getPostId = async (req: Request, res: Response) => {
 export const reportPost = async (req: Request, res: Response) => {
     try {
         const { postId } = req.params
-        
-        if(!postId) throw new Error('postId empty')
+        const user = req.user
+        const { reason, details } = req.body
+        const reasons = ['spam', 'inappropriate', 'copyright', 'misleading', 'other']
 
-        // do report later
+        if(!postId) throw new Error('postId empty')
+        if(!user) throw new Error('not authenticated')
+        if(!reasons.includes(reason)) throw new Error('please pick a reason for the report')
+        if(details && String(details).length > 500) throw new Error('details must be 500 characters or less')
+
+        const post = await prisma.post.findFirst({ where: { id: postId, status: 'post' }, select: { authorId: true } })
+        if(!post) throw new Error('recipe not found')
+        if(post.authorId === user.id) throw new Error("you can't report your own recipe")
+
+        const existing = await prisma.report.findUnique({ where: { userId_postId: { userId: user.id, postId } } })
+        if(existing) return res.status(200).json({ success: true, message: 'You already reported this recipe. Thanks!' })
+
+        await prisma.report.create({
+            data: { userId: user.id, postId, reason, details: details ? String(details).trim() : null }
+        })
+
+        return res.status(200).json({ success: true, message: "Thanks for the report, we'll take a look." })
     } catch (error: any) {
         console.log('error in the reportPost function in the postController Error: ' + error)
         return res.status(400).json({ error : error.message })
