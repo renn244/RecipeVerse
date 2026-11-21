@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { LoginInfoType } from './Login'
 import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
+import { API_URL } from '@/lib/api'
 
 
 const useLogin = () => {
@@ -13,7 +14,7 @@ const useLogin = () => {
     if(!loginInfo.username || !loginInfo.password) return
     setLoading(true)
     try {
-      const res: Response = await fetch('http://localhost:4000/api/auth/login', {
+      const res: Response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type' : 'application/json'
@@ -27,14 +28,14 @@ const useLogin = () => {
       
       if(data.otpRequired === true) {
         // when the user use otp
-        return window.location.assign(`http://localhost:3000/otp?next=${next}&id=${data.userId}&email=${data.email}`)
+        return window.location.assign(`/otp?next=${next}&id=${data.userId}&email=${data.email}`)
       }
 
       // if there was next redirect then if not then just redirect to default which is /explore
       if(next) {
-        return window.location.assign(`http://localhost:3000${next}`)  
+        return window.location.assign(`${next}`)  
       } else {
-        return window.location.assign('http://localhost:3000/explore')
+        return window.location.assign('/explore')
       }
 
     } catch (error: any) {

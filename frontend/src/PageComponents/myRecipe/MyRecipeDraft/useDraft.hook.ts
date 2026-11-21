@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { DraftDataType } from './MyRecipeDraft'
+import { API_URL } from '@/lib/api'
 
 const useDraft = () => {
     const [draftData, setDraftData] = useState<DraftDataType[] >([])
 
     const deleteDraft = async (postId: string) => {
         try {
-            const res: Response = await fetch('http://localhost:4000/api/dashboard/delete', {
+            const res: Response = await fetch(`${API_URL}/api/dashboard/delete`, {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json'
@@ -30,7 +31,7 @@ const useDraft = () => {
 
     const uploadDraft = async (postId: string) => {
         try {
-            const res: Response = await fetch('http://localhost:4000/api/dashboard/upload', {
+            const res: Response = await fetch(`${API_URL}/api/dashboard/upload`, {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json'
@@ -53,7 +54,7 @@ const useDraft = () => {
 
     const handleSearch = async (search: string) => {
         try {
-            const res: Response = await fetch('http://localhost:4000/api/dashboard/search', {
+            const res: Response = await fetch(`${API_URL}/api/dashboard/search`, {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json'
@@ -78,7 +79,7 @@ const useDraft = () => {
     useEffect(() => {
         const getDraftData = async () => {
             try {
-                const res: Response = await fetch('http://localhost:4000/api/dashboard/getDraft', {
+                const res: Response = await fetch(`${API_URL}/api/dashboard/getDraft`, {
                     method: "GET",
                     credentials: 'include'
                 })

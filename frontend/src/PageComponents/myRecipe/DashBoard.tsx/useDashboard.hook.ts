@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { PostDataType } from "./Dashboard"
+import { API_URL } from '@/lib/api'
 
 
 const useDashboard = () => {
@@ -8,7 +9,7 @@ const useDashboard = () => {
     const getpostDashboard = async () => {
         try {
             // apply pagination later
-            const res: Response = await fetch('http://localhost:4000/api/dashboard/getPostDashboard', {
+            const res: Response = await fetch(`${API_URL}/api/dashboard/getPostDashboard`, {
                 method: 'POST',
                 credentials: 'include'
             })

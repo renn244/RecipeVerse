@@ -8,6 +8,7 @@ import { handleDrag, handleDrop, handleFileChange } from '@/lib/FileInput_utils'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { UploadIcon } from 'lucide-react'
 import { useAuthContext } from '@/context/authContext'
+import { API_URL } from '@/lib/api'
 
 type ChangeAvatarProps = {
     initialName: string,
@@ -30,7 +31,7 @@ const ChangeAvatar = ({
             const formData = new FormData();
             formData.append('avatar', profile)  
 
-            const res = await fetch('http://localhost:4000/api/user/changeAvatar', {
+            const res = await fetch(`${API_URL}/api/user/changeAvatar`, {
                 method: 'POST',
                 body: formData,
                 credentials: 'include'

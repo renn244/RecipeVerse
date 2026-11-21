@@ -15,6 +15,7 @@ import Password from "./Password"
 import TwoFactorAuthentication from "./TwoFactorAuthentication"
 import DeleteAccount from "./DeleteAccount"
 import ChangeAvatar from "./ChangeAvatar"
+import { API_URL } from '@/lib/api'
 
 type initialValueUserType = {
     name: string,
@@ -34,7 +35,7 @@ const Settings = () => {
     const { data, isLoading, isError } = useQuery({
         queryKey: ['userInfo', user.id],
         queryFn: async () => {
-            const res: Response = await fetch('http://localhost:4000/api/user/getUserInfo', { credentials: 'include' })
+            const res: Response = await fetch(`${API_URL}/api/user/getUserInfo`, { credentials: 'include' })
             const data = await res.json()
             if(data.auth === false) return NavigateWithNext('/login')
             if(data.error) throw new Error(data.error)

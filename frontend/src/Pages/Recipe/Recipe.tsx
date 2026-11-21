@@ -3,6 +3,7 @@ import RecipeBody from "@/PageComponents/Recipe/RecipeBody"
 import SideBar from "@/PageComponents/Recipe/SideBar"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "react-router-dom"
+import { API_URL } from '@/lib/api'
 
 const Recipe = () => {
     const { id } = useParams()
@@ -10,7 +11,7 @@ const Recipe = () => {
     const { data, isLoading } = useQuery({
         queryKey: ['Viewrecipe', id],
         queryFn: async () => {
-            const res = await fetch(`http://localhost:4000/api/post/getPost/${id}`, {
+            const res = await fetch(`${API_URL}/api/post/getPost/${id}`, {
                 credentials: 'include'
             })
             return res.json()
@@ -20,7 +21,7 @@ const Recipe = () => {
 
     if(isLoading) return
 
-    if(data.error) window.location.assign('http://localhost:3000/explore')
+    if(data.error) window.location.assign('/explore')
 
     return (
         <div className="min-h-screen">

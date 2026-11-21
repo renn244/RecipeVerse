@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
+import { API_URL } from '@/lib/api'
 
 type FollowUserProps = {
     postId: string,
@@ -20,7 +21,7 @@ const FollowUser = ({
     const { data: isFollowing, isLoading } = useQuery({
         queryKey: ['following', authorId],
         queryFn: async () => {
-            const res: Response = await fetch(`http://localhost:4000/api/user/isFollowing/${authorId}`, {
+            const res: Response = await fetch(`${API_URL}/api/user/isFollowing/${authorId}`, {
                 credentials: 'include'
             })
             const data = await res.json()
@@ -34,7 +35,7 @@ const FollowUser = ({
     const { mutate: followMutate, isPending: followisPending } = useMutation({
         mutationKey: ['followUser', authorId],
         mutationFn: async () => {
-            const res = await fetch(`http://localhost:4000/api/user/followUser/${authorId}`, {
+            const res = await fetch(`${API_URL}/api/user/followUser/${authorId}`, {
                 method: 'POST',
                 credentials: 'include'
             })  
@@ -77,7 +78,7 @@ const FollowUser = ({
     const { mutate: unfollowMutate, isPending: unfollowisPending } = useMutation({
         mutationKey: ['unfollowUser', authorId],
         mutationFn: async () => {
-            const res = await fetch(`http://localhost:4000/api/user/unfollowUser/${authorId}`, {
+            const res = await fetch(`${API_URL}/api/user/unfollowUser/${authorId}`, {
                 method: 'POST', 
                 credentials: 'include' 
             })

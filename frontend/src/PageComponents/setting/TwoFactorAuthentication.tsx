@@ -7,6 +7,7 @@ import { useState } from 'react'
 import LoadingSpinner from '../LoadingSpinner'
 import toast from 'react-hot-toast'
 import { useAuthContext } from '@/context/authContext'
+import { API_URL } from '@/lib/api'
 
 type TwoFactorAuthenticationProps = {
     MultiFactor: boolean
@@ -51,7 +52,7 @@ const EnableModal = ({
     const { user } = useAuthContext();
     const { mutate, isPending } = useMutation({
         mutationFn: async () => {
-            const res = await fetch('http://localhost:4000/api/user/enable2FA', {
+            const res = await fetch(`${API_URL}/api/user/enable2FA`, {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json'

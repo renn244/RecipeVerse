@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { FormMessage } from '@/components/ui/form'
 import { CardTitle } from '@/components/ui/card'
 import LoadingSpinner from '../LoadingSpinner'
+import { API_URL } from '@/lib/api'
 
 // implement likes, reply and delete in child comments
 // and also make display comment dynamic for both comments and child comments
@@ -144,7 +145,7 @@ const CommentInput = ({
       event.preventDefault()
       if(!commentInput) throw new Error('comments empty!')
 
-      const res = await fetch(`http://localhost:4000/api/post/comment/${postId}`, {
+      const res = await fetch(`${API_URL}/api/post/comment/${postId}`, {
         method: 'POST',
         headers: {
           'Content-Type' : 'application/json'
@@ -239,7 +240,7 @@ const ChildCommentButton = ({
 
   const { mutate: likeComment, isPending: likesPending, data: like } = useMutation({
     mutationFn: async (commentId: string) => {
-      const res = await fetch(`http://localhost:4000/api/post/likeChildComment/${commentId}`, {
+      const res = await fetch(`${API_URL}/api/post/likeChildComment/${commentId}`, {
         method: 'POST',
         credentials: 'include'
       })
@@ -256,7 +257,7 @@ const ChildCommentButton = ({
 
   const { mutate: deleteComment, isPending: deletePending, variables: CommentId } = useMutation({
     mutationFn: async (commentId: string) => {
-      const res = await fetch(`http://localhost:4000/api/post/deleteChildComment/${commentId}`, {
+      const res = await fetch(`${API_URL}/api/post/deleteChildComment/${commentId}`, {
         method: 'POST',
         credentials: 'include'
       })
@@ -350,7 +351,7 @@ const CommentButton = ({
 
   const { mutate: likeComment, isPending: likesPending, data: like } = useMutation({
     mutationFn: async (commentId: string) => {
-      const res = await fetch(`http://localhost:4000/api/post/likeComment/${commentId}`, {
+      const res = await fetch(`${API_URL}/api/post/likeComment/${commentId}`, {
         method: 'POST',
         credentials: 'include'
       })
@@ -392,7 +393,7 @@ const CommentButton = ({
 
   const { mutate: deleteComment, isPending: deletePending, variables: CommentId } = useMutation({
     mutationFn: async (commentId: string) => {
-      const res = await fetch(`http://localhost:4000/api/post/deleteComment/${commentId}`, {
+      const res = await fetch(`${API_URL}/api/post/deleteComment/${commentId}`, {
         method: 'POST',
         credentials: 'include'
       })
@@ -493,7 +494,7 @@ const ReplyComment = ({
   const { mutate, isPending, isError, error } = useMutation({
     mutationFn: async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
-      const res = await fetch(`http://localhost:4000/api/post/reply${isChild ? 'Child' : ''}Comment/${commentId}`, {
+      const res = await fetch(`${API_URL}/api/post/reply${isChild ? 'Child' : ''}Comment/${commentId}`, {
         method: 'POST',
         headers: {
           'Content-Type' : 'application/json'

@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import LoadingSpinner from '@/PageComponents/LoadingSpinner'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
+import { API_URL } from '@/lib/api'
 
 type FollowProps = {
     userId: string
@@ -15,7 +16,7 @@ const Follow = ({
     const { data: isFollowing, isLoading } = useQuery({
         queryKey: ['following'],
         queryFn: async () => {
-            const res: Response = await fetch(`http://localhost:4000/api/user/isFollowing/${userId}`, {
+            const res: Response = await fetch(`${API_URL}/api/user/isFollowing/${userId}`, {
                 credentials: 'include'
             })
             const data = await res.json()
@@ -30,7 +31,7 @@ const Follow = ({
     const { mutate: followMutate, isPending: followisPending } = useMutation({
         mutationKey: ['followUser'],
         mutationFn: async () => {
-            const res = await fetch(`http://localhost:4000/api/user/followUser/${userId}`, {
+            const res = await fetch(`${API_URL}/api/user/followUser/${userId}`, {
                 method: 'POST',
                 credentials: 'include'
             })  
@@ -60,7 +61,7 @@ const Follow = ({
     const { mutate: unfollowMutate, isPending: unfollowisPending } = useMutation({
         mutationKey: ['unfollowUser'],
         mutationFn: async () => {
-            const res = await fetch(`http://localhost:4000/api/user/unfollowUser/${userId}`, {
+            const res = await fetch(`${API_URL}/api/user/unfollowUser/${userId}`, {
                 method: 'POST', 
                 credentials: 'include' 
             })

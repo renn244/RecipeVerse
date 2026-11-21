@@ -8,6 +8,7 @@ import { useredirect } from "@/lib/redirect"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { BookmarkIcon, HeartIcon, MessageSquareIcon } from "lucide-react"
 import toast from "react-hot-toast"
+import { API_URL } from '@/lib/api'
   
 type SidebarProps = {
     postId: string,
@@ -31,7 +32,7 @@ const SideBar = ({
     const { data, mutate: LikePost, isPending: LikePostPending } = useMutation({
         mutationKey: ['like', postId],
         mutationFn: async () => {
-            const res = await fetch(`http://localhost:4000/api/post/likePost/${postId}`, {
+            const res = await fetch(`${API_URL}/api/post/likePost/${postId}`, {
                 method: 'POST', 
                 credentials: 'include'
             })
@@ -58,7 +59,7 @@ const SideBar = ({
     const { data: isFavorite, mutate: FavoritePost, isPending} = useMutation({
         mutationKey: ['Viewrecipe', postId],
         mutationFn: async () => {
-            const res = await fetch(`http://localhost:4000/api/post/addFavorites/${postId}`, {
+            const res = await fetch(`${API_URL}/api/post/addFavorites/${postId}`, {
                 method: 'POST',
                 credentials: 'include'
             })

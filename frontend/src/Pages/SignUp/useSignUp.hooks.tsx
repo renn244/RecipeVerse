@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { SignUpInfoType } from "./SignUp"
+import { API_URL } from '@/lib/api'
 
 const useSignUp = () => {
   const [loading, setLoading] = useState<boolean>(false)
@@ -8,7 +9,7 @@ const useSignUp = () => {
     if(!signUpInfo.username || !signUpInfo.password) return
     setLoading(true)
     try {
-      const res: Response = await fetch('http://localhost:4000/api/auth/signup', {
+      const res: Response = await fetch(`${API_URL}/api/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type' : 'application/json'
@@ -21,7 +22,7 @@ const useSignUp = () => {
 
       if(data.error) throw new Error(data.error)
       
-      window.location.assign('http://localhost:3000/login')
+      window.location.assign('/login')
     } catch (error: any) {
       console.log(`Error in the useSignUp hook Error: ${error.message}`)
       // put toast here that says the error

@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import LoadingSpinner from '../LoadingSpinner'
+import { API_URL } from '@/lib/api'
 
 type PasswordInfoType = {
     password: string,
@@ -31,7 +32,7 @@ const Password = () => {
                 throw new Error('fill in the all the files')
             }
 
-            const res = await fetch('http://localhost:4000/api/user/changePassword', {
+            const res = await fetch(`${API_URL}/api/user/changePassword`, {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json'

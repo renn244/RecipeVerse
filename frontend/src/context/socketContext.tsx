@@ -1,6 +1,7 @@
 import { createContext, useContext, PropsWithChildren, useEffect, useState } from "react";
 import { Socket, io } from 'socket.io-client'
 import { useAuthContext } from "./authContext";
+import { API_URL } from '@/lib/api'
 
 
 const SocketContext = createContext<Socket | undefined>(undefined)
@@ -21,7 +22,7 @@ export const SocketProvider = ({
     useEffect(() => {
         // because user can still use website even though they are not logged in
         if(user) {
-            const socket:Socket = io('http://localhost:4000', {
+            const socket:Socket = io(`${API_URL}`, {
                 transports: ['websocket'],
                 query: { 
                     userId: user.id

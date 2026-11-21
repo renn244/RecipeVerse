@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { createContext, useContext, useState, useEffect } from 'react'
+import { API_URL } from '@/lib/api'
 
 type AuthProviderProps = {
     children: React.ReactNode,
@@ -29,7 +30,7 @@ export function AuthProvider({
     const { data, isLoading } = useQuery({
         queryKey: ['user'],
         queryFn: async () => {
-            const res: Response = await fetch('http://localhost:4000/api/auth/check', {
+            const res: Response = await fetch(`${API_URL}/api/auth/check`, {
                 credentials: 'include'
             })
             const data = await res.json()

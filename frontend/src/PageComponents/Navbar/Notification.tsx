@@ -13,6 +13,7 @@ import { Link } from "react-router-dom"
 import AvatarProfile from "../AvatarProfile"
 import notificationSound from '@/assets/notification.mp3'
 import formatTime from "@/lib/formatTime"
+import { API_URL } from '@/lib/api'
 
 enum NotificationStatus {
     Viewed = "Viewed",
@@ -40,7 +41,7 @@ const NotificationButton = () => {
     const { data, isLoading, error } = useQuery({
         queryKey: ['Notification'],
         queryFn: async () => {
-            const res = await fetch('http://localhost:4000/api/user/getNotification', {
+            const res = await fetch(`${API_URL}/api/user/getNotification`, {
                 credentials: 'include'
             })
             const data = await res.json()

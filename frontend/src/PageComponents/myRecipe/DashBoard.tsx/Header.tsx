@@ -8,6 +8,7 @@ import {
 import { Progress } from "@/components/ui/progress"
 import LoadingSpinner from "@/PageComponents/LoadingSpinner"
 import { memo, useEffect, useState } from "react"
+import { API_URL } from '@/lib/api'
 
 type postStatType = {
   monthPost: number,
@@ -23,7 +24,7 @@ const DashboardHeader = () => {
   useEffect(() => {
     const getStats = async () => {
       try {
-          const res:Response = await fetch('http://localhost:4000/api/dashboard/getPostStats', {
+          const res:Response = await fetch(`${API_URL}/api/dashboard/getPostStats`, {
             credentials: 'include'
           })
 

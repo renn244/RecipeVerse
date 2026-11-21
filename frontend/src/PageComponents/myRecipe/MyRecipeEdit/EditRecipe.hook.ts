@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { recipeInfoType } from '../MyRecipeForm/MyRecipeCreate'
 import formData from '../MyRecipeCreate/formData.utils'
+import { API_URL } from '@/lib/api'
 
 const EditRecipe = () => {
     const [loading, setLoading] = useState<boolean>(false) 
@@ -9,7 +10,7 @@ const EditRecipe = () => {
     const getData = async (postId: string): Promise<any | { error: string }> => {
         setDataLoading(true)
         try {
-            const res:Response = await fetch(`http://localhost:4000/api/recipe/getRecipe/${postId}`, {
+            const res:Response = await fetch(`${API_URL}/api/recipe/getRecipe/${postId}`, {
                 method: 'GET',
                 credentials: 'include'
             }) 
@@ -33,7 +34,7 @@ const EditRecipe = () => {
             
             const formdata = formData(recipeData)
 
-            const res: Response = await fetch(`http://localhost:4000/api/recipe/edit/${recipeId}`, {
+            const res: Response = await fetch(`${API_URL}/api/recipe/edit/${recipeId}`, {
                 method: 'POST',
                 body: formdata,
                 credentials: 'include'
