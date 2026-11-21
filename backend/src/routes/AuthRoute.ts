@@ -1,5 +1,5 @@
 import { NextFunction, Router }  from 'express'
-import { check, forgotPassword, logout, VerifyOtpCode, signup, ResendOtpCode } from '../controllers/authController';
+import { check, forgotPassword, resetPassword, logout, VerifyOtpCode, signup, ResendOtpCode } from '../controllers/authController';
 import passport from 'passport';
 
 const router = Router();
@@ -40,6 +40,8 @@ router.post('/signup', signup)
 
 // not tested
 router.post('/forgotPassword', forgotPassword)
+
+router.post('/resetPassword', resetPassword)
 
 router.post('/verifyOtpCode', VerifyOtpCode)
 

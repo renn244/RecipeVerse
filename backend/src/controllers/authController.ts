@@ -3,7 +3,35 @@ import bcrypt from 'bcrypt'
 import { prisma } from '../db/db'
 import { totp } from 'otplib'
 import { User as PrismaUser } from '@prisma/client'
-import nodemailer from 'nodemailer'
+import crypto from 'crypto'
+import { sendEmail } from '../utils/mailer'
+
+const hashToken = (token: string) => crypto.createHash('sha256').update(token).digest('hex')
+
+export const resetPassword = async (req: Request, res: Response) => {
+    try {
+        const { token, password } = req.body
+
+        if(!token) throw new Error('reset link is invalid')
+        if(!password || String(password).length < 6) throw new Error('password must be at least 6 characters')
+
+        const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash: hashToken(token) } })
+        if(!record || record.expiresAt < new Date()) throw new Error('this reset link is invalid or has expired')
+
+        const saltRounds = parseInt(process.env.BCRYPT_SALTROUNDS!) || 10
+        const hashPassword = await bcrypt.hash(password, saltRounds)
+
+        await prisma.$transaction([
+            prisma.user.update({ where: { id: record.userId }, data: { password: hashPassword } }),
+            prisma.passwordResetToken.deleteMany({ where: { userId: record.userId } })
+        ])
+
+        return res.status(200).json({ success: true, message: 'password updated, you can log in now' })
+    } catch (error: any) {
+        console.log('Error in the resetPassword in the authControllers Error: ' + error.message)
+        return res.status(400).json({ error : error.message })
+    }
+}
 
 export const signup = async (req: Request, res: Response) => {
     try {
@@ -63,6 +91,10 @@ export const signup = async (req: Request, res: Response) => {
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
         const { email } = req.body
+        // same answer whether or not the email exists, so it can't be used to find accounts
+        const genericResponse = { success: true, message: 'If that email is registered, a reset link has been sent.' }
+
+        if(!email) throw new Error('email is required')
 
         const getUser = await prisma.user.findFirst({
             where: {
@@ -72,15 +104,25 @@ export const forgotPassword = async (req: Request, res: Response) => {
             }
         })
 
-        if(!getUser) {
-            return res.status(204).json({
-                success: false,
-                message: 'email does not exist'
-            })
-        }
+        if(!getUser) return res.status(200).json(genericResponse)
 
-        // send email here
+        // one active link per user, valid for 1 hour; only a hash is stored
+        const token = crypto.randomBytes(32).toString('hex')
+        await prisma.passwordResetToken.deleteMany({ where: { userId: getUser.id } })
+        await prisma.passwordResetToken.create({
+            data: {
+                userId: getUser.id,
+                tokenHash: hashToken(token),
+                expiresAt: new Date(Date.now() + 60 * 60 * 1000)
+            }
+        })
 
+        const link = `${process.env.CLIENT_URL || 'http://localhost:3000'}/reset-password?token=${token}`
+        const sent = await sendEmail(email, 'Reset your RecipeVerse password',
+            `<p>Click the link below to choose a new password. It expires in 1 hour.</p><p><a href="${link}">${link}</a></p><p>If you didn't ask for this, you can ignore this email.</p>`)
+        if(!sent) throw new Error('failed to send the reset email, please try again')
+
+        return res.status(200).json(genericResponse)
     } catch (error: any) {
         console.log('Error in the forgotPassword in the authControllers Error: ' + error.message)
         return res.status(400).json({ error : error.message})
@@ -91,28 +133,10 @@ export const forgotPassword = async (req: Request, res: Response) => {
 export const MultiFactorSendCode = async (email: string, secret: string) =>  {
     try {
 
-        const token = totp.generate(secret)  
-        // Node Mailer
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.GMAIL_USER,
-                pass: process.env.GMAIL_PASSWORD
-            }
-        })
+        const token = totp.generate(secret)
 
-        let mailOptions = {
-            from: process.env.GMAIL_USER,
-            to: email,
-            subject: 'OTP Code',
-            text: 'code to login',
-            html: `<h2>${token}</h2>`
-        }
-
-        // await the promise form so a failed send is caught below
-        // (throwing inside the callback form crashed the whole server)
-        const info = await transporter.sendMail(mailOptions)
-        console.log('Email sent', info.response)
+        const sent = await sendEmail(email, 'OTP Code', `<p>Your RecipeVerse login code:</p><h2>${token}</h2>`)
+        if(!sent) return undefined
 
         return token
     } catch (error: any) {
