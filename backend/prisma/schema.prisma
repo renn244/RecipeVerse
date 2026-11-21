@@ -42,6 +42,7 @@ model User {
   Posts     Post[]
   postLikes PostLike[]
   ratings   Rating[]
+  reports   Report[]
   passwordResetTokens PasswordResetToken[]
   
   NotificationSent  Notification[]  @relation("notificationSent") // this has no use but just to get the user name and id for info of the user
@@ -125,6 +126,7 @@ model Post {
   favorites   Favorites[]
   postLikes   PostLike[]
   ratings     Rating[]
+  reports     Report[]
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -224,4 +226,18 @@ model PasswordResetToken {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  reason    String // spam | inappropriate | copyright | misleading | other
+  details   String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
 }

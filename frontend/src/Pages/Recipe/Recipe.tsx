@@ -7,6 +7,7 @@ import { API_URL } from '@/lib/api'
 import { useAuthContext } from "@/context/authContext"
 import StarRating from "@/PageComponents/Recipe/StarRating"
 import AuthorActions from "@/PageComponents/Recipe/AuthorActions"
+import ReportButton from "@/PageComponents/Recipe/ReportButton"
 
 const Recipe = () => {
     const { id } = useParams()
@@ -57,7 +58,9 @@ const Recipe = () => {
                         myRating={data.myRating ?? 0}
                         isLoggedIn={!!user}
                         isAuthor={isAuthor} />
-                        {isAuthor && <AuthorActions postId={data.id} title={data.recipe?.title} />}
+                        {isAuthor
+                            ? <AuthorActions postId={data.id} title={data.recipe?.title} />
+                            : <div className="ml-3 mt-1"><ReportButton postId={data.id} isLoggedIn={!!user} /></div>}
                     </>
                 }
                 />
