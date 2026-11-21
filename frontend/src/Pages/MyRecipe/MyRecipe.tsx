@@ -4,6 +4,7 @@ import CreateRecipe from "@/PageComponents/myRecipe/MyRecipeCreate/CreateRecipe"
 import MyRecipeDraft from "@/PageComponents/myRecipe/MyRecipeDraft/MyRecipeDraft"
 import MyRecipeEdit from "@/PageComponents/myRecipe/MyRecipeEdit/MyRecipeEdit"
 import SideBar from "@/PageComponents/myRecipe/SideBar"
+import SavedRecipes from "@/PageComponents/myRecipe/Saved/SavedRecipes"
 
 import { Route, Routes } from "react-router-dom"
 
@@ -22,6 +23,7 @@ const MyRecipe = () => {
                         <Route path="edit/:postId"  element={<MyRecipeEdit />}  />
                         <Route path="create"    element={<CreateRecipe />}  />
                         <Route path="draft"     element={<MyRecipeDraft />} />
+                        <Route path="saved"     element={<SavedRecipes />} />
                     </Routes>
                 </div>
             </div>
