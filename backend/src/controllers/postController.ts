@@ -117,17 +117,21 @@ export const getPostId = async (req: Request, res: Response) => {
             followingCount
         }
 
-        // updatelater so that when page just refresh no need to add view
-        const updateview = await prisma.post.update({
-            where: {
-                id: postId
-            },
-            data: {
-                views: {
-                    increment: 1
+        // count a view once per browser session, and never for the author
+        const viewed = req.session.viewedPosts ?? []
+        if(post.authorId !== user?.id && !viewed.includes(postId)) {
+            req.session.viewedPosts = [...viewed, postId]
+            await prisma.post.update({
+                where: {
+                    id: postId
+                },
+                data: {
+                    views: {
+                        increment: 1
+                    }
                 }
-            }
-        })
+            })
+        }
 
         res.status(200).json({
             ...updateFavoriteCount,
