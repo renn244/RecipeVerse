@@ -40,9 +40,16 @@ const RecipeCollection = ({
                     <Card className="flex flex-col items-center h-[345px] w-[280px] shadow-md">
                       <CardHeader className="p-3">
 
-                        <img 
-                        className="w-[250px] h-[180px]"
-                        src="https://www.allrecipes.com/thmb/N3hqMgkSlKbPmcWCkHmxekKO61I=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Easyspaghettiwithtomatosauce_11715_DDMFS_1x2_2425-c67720e4ea884f22a852f0bb84a87a80.jpg" />
+                        {item.image?.[0] ? (
+                          <img
+                          className="w-[250px] h-[180px] object-cover rounded-md"
+                          alt={item.title}
+                          src={item.image[0]} />
+                        ) : (
+                          <div className="w-[250px] h-[180px] rounded-md bg-muted flex items-center justify-center text-muted-foreground text-sm">
+                            No photo yet
+                          </div>
+                        )}
 
                         <CardTitle className="text-xl">{item.title}</CardTitle>
 
@@ -60,7 +67,9 @@ const RecipeCollection = ({
                               </div>
                             )
                           })}
-                          <CardDescription>{item.rating} Average Rating</CardDescription>
+                          <CardDescription className="ml-1">
+                            {item.ratingCount ? `${item.rating} (${item.ratingCount} ${item.ratingCount === 1 ? 'rating' : 'ratings'})` : 'No ratings yet'}
+                          </CardDescription>
                         </div>
 
                         <div className="flex gap-2 items-center">

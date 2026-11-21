@@ -3,6 +3,7 @@ import { useState } from 'react'
 import formData from './formData.utils'
 import { useNavigate } from 'react-router-dom'
 import { API_URL } from '@/lib/api'
+import toast from 'react-hot-toast'
 
 const useCreateRecipe = () => {
   const [loading, setLoading] = useState<boolean>(false)
@@ -27,6 +28,7 @@ const useCreateRecipe = () => {
       navigate('/myrecipe/dashboard')
     } catch (error: any) {
       console.log('Error in createfunction in the useCreateRecipe hook' + 'Error: ' + error.message)
+      toast.error(error.message)
     } finally {
       setLoading(false)
     }
@@ -49,6 +51,7 @@ const useCreateRecipe = () => {
       navigate('/myrecipe/draft')
     } catch (error: any) {
       console.log('Error in createfunction in the useCreateRecipe hook Error: ' + error.message)
+      toast.error(error.message)
     }
   }
 
