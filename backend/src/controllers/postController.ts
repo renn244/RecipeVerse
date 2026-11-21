@@ -97,10 +97,16 @@ export const getPostId = async (req: Request, res: Response) => {
             }
         }) : false
         
+        // has the current user liked this post?
+        const isLiked = user ? !!(await prisma.postLike.findUnique({
+            where: { userId_postId: { userId: user.id, postId: post.id } }
+        })) : false
+
         const updateFavoriteCount = {
             ...post,
             favoriteCount,
-            isFavorited: isFavorited ? true : false
+            isFavorited: isFavorited ? true : false,
+            isLiked
         }
 
         //add the post count to the author object
@@ -149,6 +155,7 @@ export const reportPost = async (req: Request, res: Response) => {
 }
 
 // tested
+// toggles the like: one like per user, clicking again unlikes
 export const likePost = async (req: Request, res: Response) => {
     try {
         const { postId } = req.params
@@ -157,49 +164,68 @@ export const likePost = async (req: Request, res: Response) => {
         if(!user) throw new Error('user is undefined')
 
         if(!postId) throw new Error('postId empty')
-        // later add likers base on relation so that we know if he already like or not
-        const updatePost = await prisma.post.update({
-            where: {
-                id: postId,
-            },
-            data: {
-                likes: {
-                    increment: 1
-                }
-            },
-            select: {
-                likes: true,
-                authorId: true
-            }
-        })    
-        
-        // NOTIFICATION!
-        const notification = await prisma.notification.create({
-            data: {
-                body: `${user.name} liked your recipe post!`, // statement
-                link: `/recipe/${postId}`, //profile of the user
-                notificationFor_Id: updatePost.authorId,
-                notificationFrom_Id: user.id,
-                type: 'Posts'
-            },
-            include: {
-                notificationFrom: {
-                    select: {
-                        id: true,
-                        name: true,
-                        profile: true
+
+        const existing = await prisma.postLike.findUnique({
+            where: { userId_postId: { userId: user.id, postId } }
+        })
+
+        if(existing) {
+            const [, updatePost] = await prisma.$transaction([
+                prisma.postLike.delete({ where: { id: existing.id } }),
+                prisma.post.update({
+                    where: { id: postId },
+                    data: { likes: { decrement: 1 } },
+                    select: { likes: true }
+                })
+            ])
+
+            return res.status(200).json({
+                success: true,
+                isLiked: false,
+                message: 'post unliked',
+                likesCount: updatePost.likes
+            })
+        }
+
+        const [, updatePost] = await prisma.$transaction([
+            prisma.postLike.create({ data: { userId: user.id, postId } }),
+            prisma.post.update({
+                where: { id: postId },
+                data: { likes: { increment: 1 } },
+                select: { likes: true, authorId: true }
+            })
+        ])
+
+        // NOTIFICATION! (not for liking your own recipe)
+        if(updatePost.authorId !== user.id) {
+            const notification = await prisma.notification.create({
+                data: {
+                    body: `${user.name} liked your recipe post!`, // statement
+                    link: `/recipe/${postId}`, //profile of the user
+                    notificationFor_Id: updatePost.authorId,
+                    notificationFrom_Id: user.id,
+                    type: 'Posts'
+                },
+                include: {
+                    notificationFrom: {
+                        select: {
+                            id: true,
+                            name: true,
+                            profile: true
+                        }
                     }
                 }
-            }
-        }) 
+            })
 
-        // check if it exist // it will only exist if he's online
-        // no need to send notification if he's not online
-        const socketId = await getSocketId(updatePost.authorId)
-        socketId && io.to(socketId).emit('notification', notification)
+            // check if it exist // it will only exist if he's online
+            // no need to send notification if he's not online
+            const socketId = await getSocketId(updatePost.authorId)
+            socketId && io.to(socketId).emit('notification', notification)
+        }
 
-        return res.status(200).json({ 
+        return res.status(200).json({
             success: true,
+            isLiked: true,
             message : 'post liked',
             likesCount: updatePost.likes
         })

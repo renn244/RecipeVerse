@@ -13,6 +13,7 @@ import { API_URL } from '@/lib/api'
 type SidebarProps = {
     postId: string,
     likesCount: number,
+    isLiked: boolean,
     isFavorited: boolean,
     favoritesCount: number,
     commentsCount: number,
@@ -21,6 +22,7 @@ type SidebarProps = {
 const SideBar = ({
     postId,
     likesCount,
+    isLiked,
     isFavorited,
     favoritesCount,
     commentsCount
@@ -29,7 +31,7 @@ const SideBar = ({
     const queryClient = useQueryClient();
     const { NavigateWithNext } = useredirect()
 
-    const { data, mutate: LikePost, isPending: LikePostPending } = useMutation({
+    const { mutate: LikePost, isPending: LikePostPending } = useMutation({
         mutationKey: ['like', postId],
         mutationFn: async () => {
             const res = await fetch(`${API_URL}/api/post/likePost/${postId}`, {
@@ -50,7 +52,8 @@ const SideBar = ({
             queryClient.setQueryData(['Viewrecipe', postId], (oldData: any) => {
                 return {
                     ...oldData,
-                    likes: oldData.likes + 1
+                    likes: data.likesCount,
+                    isLiked: data.isLiked
                 }
             })
         }
@@ -91,20 +94,20 @@ const SideBar = ({
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <div className="w-full h-full">
-                                {/* should know when liked already and also implement unliked */}
-                                <button 
-                                disabled={LikePostPending || data}
-                                onClick={() => LikePost()} // if there is data already then it's liked fix later for unlike
+                                {/* clicking toggles like / unlike */}
+                                <button
+                                disabled={LikePostPending}
+                                onClick={() => LikePost()}
                                 className="w-full flex flex-col items-center px-[6px] py-[1px]">
                                     <div className="p-2">
-                                        <HeartIcon className={`size-[24px] hover:text-red-500 ${data?.success && 'fill-red-500 text-red-500'} transition-all`} />
+                                        <HeartIcon className={`size-[24px] hover:text-red-500 ${isLiked && 'fill-red-500 text-red-500'} transition-all`} />
                                     </div>
                                     <p>{likesCount}</p>
                                 </button>
                             </div>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
-                            <p>Add Like</p>
+                            <p>{isLiked ? 'Unlike' : 'Add Like'}</p>
                         </TooltipContent>
                     </Tooltip>
 

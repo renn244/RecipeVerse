@@ -29,6 +29,7 @@ const Recipe = () => {
                 
                 <SideBar 
                 isFavorited={data.isFavorited}
+                isLiked={!!data.isLiked}
                 postId={data.id}
                 likesCount={data.likes}
                 commentsCount={data.comments.length}
