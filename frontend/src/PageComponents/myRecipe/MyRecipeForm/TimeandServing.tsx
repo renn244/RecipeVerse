@@ -17,7 +17,7 @@ const TimeandServing = ({
     const { handleChangeObject } = useChange<recipeInfoType>()
         
     return (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
             <div className="grid gap-2">
                 <Label htmlFor="cookingTime">Cooking Time</Label>
                 <Input
@@ -38,6 +38,18 @@ const TimeandServing = ({
                 id="servings" 
                 type="number" 
                 placeholder="Number of servings" 
+                />
+            </div>
+            <div className="grid gap-2">
+                <Label htmlFor="cost">Cost ($)</Label>
+                <Input 
+                name="cost" 
+                value={recipeInfo.cost ?? ''}
+                onChange={(e) => handleChangeObject(e, setRecipeInfo)}
+                id="cost" 
+                type="number" 
+                min={0}
+                placeholder="Estimated cost" 
                 />
             </div>
         </div>

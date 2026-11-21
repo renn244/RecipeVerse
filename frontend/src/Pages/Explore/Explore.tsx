@@ -4,7 +4,7 @@ import PaginationNav from "@/PageComponents/explore/Pagination"
 import RecipeCollection from "@/PageComponents/explore/RecipeCollection"
 import ExploreSearch from "@/PageComponents/explore/Search"
 import { useQuery } from "@tanstack/react-query"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useSearchParams } from "react-router-dom"
 import { API_URL } from '@/lib/api'
 
@@ -63,6 +63,13 @@ const Explore = () => {
         },
     })
 
+    // changing a filter or the search goes back to page 1
+    const firstRender = useRef(true)
+    useEffect(() => {
+        if (firstRender.current) { firstRender.current = false; return }
+        if (page !== '1') setSearchParams({ page: '1' })
+    }, [filter])
+
     return (
         <div className="pt-10 flex-col mx-52">
             <div aria-label="search" className="mr-36 flex items-end">
@@ -79,12 +86,13 @@ const Explore = () => {
                 aria-label="card recipe">
                     <RecipeCollection 
                     loading={isLoading}
-                    recipeCollection={data}
-                    />   
+                    recipeCollection={data?.posts ?? []}
+                    />
                     <div className="mt-7">
-                        <PaginationNav  
-                        searchParams={searchParams}
-                        setSearchParams={setSearchParams}
+                        <PaginationNav
+                        page={data?.page ?? parseInt(page)}
+                        totalPages={data?.totalPages ?? 1}
+                        onPageChange={(p) => setSearchParams({ page: String(p) })}
                         />
                     </div>
                 </div>
