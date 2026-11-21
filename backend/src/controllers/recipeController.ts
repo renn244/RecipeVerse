@@ -72,6 +72,7 @@ export const getRecipeId = async (req: Request, res: Response) => {
             },
             select: {
                 id: true,
+                status: true,
                 author: {
                     select: {
                         id: true,

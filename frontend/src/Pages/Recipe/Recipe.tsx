@@ -4,9 +4,13 @@ import SideBar from "@/PageComponents/Recipe/SideBar"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "react-router-dom"
 import { API_URL } from '@/lib/api'
+import { useAuthContext } from "@/context/authContext"
+import StarRating from "@/PageComponents/Recipe/StarRating"
+import AuthorActions from "@/PageComponents/Recipe/AuthorActions"
 
 const Recipe = () => {
     const { id } = useParams()
+    const { user } = useAuthContext()
 
     const { data, isLoading } = useQuery({
         queryKey: ['Viewrecipe', id],
@@ -22,6 +26,8 @@ const Recipe = () => {
     if(isLoading) return
 
     if(data.error) window.location.assign('/explore')
+
+    const isAuthor = !!user && user.id === data.author?.id
 
     return (
         <div className="min-h-screen">
@@ -42,6 +48,18 @@ const Recipe = () => {
                 recipe={data.recipe}
                 author={data.author}
                 comments={data.comments}
+                headerExtra={
+                    <>
+                        <StarRating
+                        postId={data.id}
+                        averageRating={data.averageRating ?? 0}
+                        ratingCount={data.ratingCount ?? 0}
+                        myRating={data.myRating ?? 0}
+                        isLoggedIn={!!user}
+                        isAuthor={isAuthor} />
+                        {isAuthor && <AuthorActions postId={data.id} title={data.recipe?.title} />}
+                    </>
+                }
                 />
 
                 <AuthorProfile 
