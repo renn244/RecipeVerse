@@ -11,6 +11,7 @@ import { Recipe } from "@/Pages/Explore/Explore"
 import { format } from 'date-fns'
 import Comments from "./Comments"
 import ImageCarousel from "../ImageCarousel"
+import { ReactNode } from "react"
 
 export type Author = {
     id: string,
@@ -45,14 +46,16 @@ export type RecipeBodyType = {
         createdAt: Date
     }>,
     author: Author,
-    comments: Comment[]
+    comments: Comment[],
+    headerExtra?: ReactNode // shown under the title (rating, author actions)
 }
 
 const RecipeBody = ({
     postId,
     createdAt,
     recipe,
-    comments
+    comments,
+    headerExtra
 } : RecipeBodyType) => {
 
     const cookingTime = (time: number): { time: number, unit: string}[] => {
@@ -100,7 +103,8 @@ const RecipeBody = ({
                     </div> */}
                     <div className="mb-3">
                          <CardTitle className="text-5xl font-bold">{recipe.title}</CardTitle>
-                         <CardDescription className="ml-5 mt-2">publish in {format(new Date(createdAt), 'MM-dd-yyyy')}</CardDescription>
+                         <CardDescription className="ml-5 mt-2">Published {format(new Date(createdAt), 'MM-dd-yyyy')}</CardDescription>
+                         {headerExtra}
                     </div>
                 </CardHeader>
                 <CardContent className="py-[35px] px-[64px]">
@@ -119,6 +123,11 @@ const RecipeBody = ({
                         <div className="flex flex-col items-center">
                             <h2 className="text-xl font-semibold">Meal Preference</h2>
                             <p className="font-medium">{recipe.mealPreference}</p>
+                        </div>
+
+                        <div className="flex flex-col items-center">
+                            <h2 className="text-xl font-semibold">Cost</h2>
+                            <p className="font-medium">{recipe.cost ? `$${recipe.cost}` : '-'}</p>
                         </div>
 
                     </div>
@@ -161,7 +170,7 @@ const RecipeBody = ({
 
                             <div>
                                 <h2 className="font-bold text-2xl mb-1">Servings</h2>
-                                <p className="text-lg font-medium px-2">can be diveded to {recipe.servings} different plates</p>
+                                <p className="text-lg font-medium px-2">can be divided into {recipe.servings} different plates</p>
                             </div>
 
                     </div>

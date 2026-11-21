@@ -2,31 +2,41 @@ import { FormEvent, useEffect, useState } from 'react'
 import MyRecipeForm, { recipeInfoType } from '../MyRecipeForm/MyRecipeCreate'
 import EditRecipe from './EditRecipe.hook'
 import LoadingSpinner from '@/PageComponents/LoadingSpinner'
-import { Navigate, useParams } from 'react-router-dom'
-import { useAuthContext } from '@/context/authContext'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 
 const MyRecipeEdit = () => {
     const { postId } = useParams()
     const [recipeData, setRecipeData] = useState<recipeInfoType>()
+    const [status, setStatus] = useState<string>('post')
+    const navigate = useNavigate()
 
     if(!postId) return <Navigate to='/error' replace />
 
     const { saveEdit, getData } = EditRecipe()
-    const { user } = useAuthContext()
 
     const callbackFunction = async (e: FormEvent<HTMLFormElement>, recipeData: recipeInfoType) => {
         e.preventDefault()
-        await saveEdit.SaveEdit(postId, recipeData)
+        const result = await saveEdit.SaveEdit(postId, recipeData)
+        if(result && 'error' in result) return toast.error(result.error)
+
+        toast.success('Recipe updated')
+        // published recipes go back to their page; drafts go back to the drafts list
+        navigate(status === 'post' ? `/recipe/${postId}` : '/myrecipe/draft')
     }
 
-    useEffect(() => {    
+    useEffect(() => {
         const fetchData = async () => {
-        
-            const data = await getData.getData(postId) 
-            
-            if(data.author.id !== user.id) return console.log('not the owner of this recipe')
+            // the API only returns the recipe to its author
+            const data = await getData.getData(postId)
 
+            if(!data || data.error) {
+                toast.error('You can only edit your own recipes')
+                return navigate('/myrecipe/dashboard')
+            }
+
+            setStatus(data.status ?? 'post')
             setRecipeData(data.recipe)
         }
         fetchData()
@@ -39,9 +49,9 @@ const MyRecipeEdit = () => {
     )
 
     return (
-        <MyRecipeForm 
-        recipeData={recipeData} 
-        loading={saveEdit.loading} 
+        <MyRecipeForm
+        recipeData={recipeData}
+        loading={saveEdit.loading}
         callbackFunction={callbackFunction} />
     )
 }
