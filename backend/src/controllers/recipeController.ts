@@ -98,6 +98,11 @@ export const editRecipe = async (req: Request, res: Response) => {
         if(!user) throw new Error('not authenticated')
         if(!postId) throw new Error('no post id')
 
+        // only the author may edit their recipe
+        const post = await prisma.post.findUnique({ where: { id: postId }, select: { authorId: true } })
+        if(!post) throw new Error('recipe not found')
+        if(post.authorId !== user.id) return res.status(403).json({ error: 'you can only edit your own recipes' })
+
         let images: string[] = [];
         if(Array.isArray(filenames)) {
             images = filenames.map((filename) => `${process.env.SERVER_URL || 'http://localhost:4000'}/recipePhoto/${filename.filename}`)
@@ -105,16 +110,17 @@ export const editRecipe = async (req: Request, res: Response) => {
 
         const editRecipe = await prisma.recipe.update({
             where: {
-                postId: postId 
+                postId: postId
             },
             data: {
                 title: recipe.title,
                 description: recipe.description,
-                image: images,
-                cookingTime: parseInt(recipe.cookingTime),
-                servings: parseInt(recipe.servings),
+                // keep the existing photos unless new ones were uploaded
+                ...(images.length > 0 ? { image: images } : {}),
+                cookingTime: parseInt(recipe.cookingTime) || 0,
+                servings: parseInt(recipe.servings) || 0,
                 mealType: recipe.mealType || null,
-                cuisine: recipe.cuisine || null,
+                cuisine: recipe.cuisine || '',
                 mealPreference: recipe.mealPreference || null,
                 instruction: recipe.instruction,
                 ingredients: recipe.ingredients

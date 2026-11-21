@@ -59,7 +59,7 @@ const IngredientInput = ({
                     value={ingredientInput}
                     onChange={(e) => setIngredientInput(e.target.value)}
                     placeholder="Ingredient" />
-                    <Button onClick={addToIngredients}
+                    <Button type="button" onClick={addToIngredients}
                     disabled={!ingredientInput} variant="ghost" size="icon">
                         <PlusIcon className="w-4 h-4" />
                     </Button>
@@ -81,7 +81,7 @@ const IngredientInput = ({
                             </SelectGroup>
                         </SelectContent>
                     </Select>
-                    <Button 
+                    <Button type="button" 
                     disabled={!removeIngredient}
                     onClick={removeIngredients}
                     variant="ghost" size="icon">
