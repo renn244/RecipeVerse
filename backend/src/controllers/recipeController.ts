@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { prisma } from '../db/db'
+import { Prisma } from '@prisma/client'
 
 
 type filterType = {
@@ -19,29 +20,17 @@ export const getRecipe = async (req: Request, res: Response) => {
         // do later cost
         // put later how much page is available
 
+        // only filter on fields the user actually picked: `contains: ''` on a
+        // nullable column excludes NULL rows, which hid recipes with empty dropdowns
+        const recipeFilter: Prisma.RecipeWhereInput = { post: { status: 'post' } }
+        if (search) recipeFilter.title = { contains: search, mode: 'insensitive' }
+        if (mealPreference) recipeFilter.mealPreference = { contains: mealPreference, mode: 'insensitive' }
+        if (mealType) recipeFilter.mealType = { contains: mealType, mode: 'insensitive' }
+        if (cuisine) recipeFilter.cuisine = { contains: cuisine, mode: 'insensitive' }
+
         const prismaRecipe = await prisma.post.findMany({
             where: {
-                recipe: {
-                    title: {
-                        contains: search || '',
-                        mode: 'insensitive'
-                    },
-                    mealPreference: {
-                        contains: mealPreference || '',
-                        mode: 'insensitive'
-                    },
-                    mealType: {
-                        contains: mealType || '',
-                        mode: 'insensitive'
-                    },
-                    cuisine: {
-                        contains: cuisine || '',
-                        mode: 'insensitive'
-                    },
-                    post: {
-                        status: 'post',
-                    }
-                }
+                recipe: recipeFilter
             },
             take: take,
             skip: skip,
@@ -95,7 +84,7 @@ export const getRecipeId = async (req: Request, res: Response) => {
         return res.status(200).json(postRecipe)
     } catch (error: any) {
         console.log('Error in the getRecipeId function in recipeController Error' + error)
-        return { error : error.message }
+        return res.status(400).json({ error : error.message })
     }
 }
 
