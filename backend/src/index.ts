@@ -22,7 +22,7 @@ const port = process.env.PORT ||  4000
 
 // application middlewares
 app.use(session({
-    secret: 'secret keyboard cat',
+    secret: process.env.SESSION_SECRET || 'dev-only-session-secret',
     resave: false,
     saveUninitialized: false, // // Only save sessions that have been modified
     cookie: { secure: false }, /// Set to true when using HTTPS in production
@@ -39,7 +39,7 @@ app.use(passport.session())
 
 app.use(express.json())
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
     credentials: true,
 }))
 

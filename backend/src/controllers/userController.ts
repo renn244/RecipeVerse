@@ -392,7 +392,7 @@ export const changeAvatar = async (req: Request, res: Response) => {
             removeFile('uploads/Avatars', fileName[fileName.length - 1]) // just getting the last in the split
         }
 
-        const profileName = file ?  `http://localhost:4000/Avatar/${file.filename}` : ''
+        const profileName = file ?  `${process.env.SERVER_URL || 'http://localhost:4000'}/Avatar/${file.filename}` : ''
 
         await prisma.user.update({
             where: {

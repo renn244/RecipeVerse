@@ -111,7 +111,7 @@ export const editRecipe = async (req: Request, res: Response) => {
 
         let images: string[] = [];
         if(Array.isArray(filenames)) {
-            images = filenames.map((filename) => `http://localhost:4000/recipePhoto/${filename.filename}`)
+            images = filenames.map((filename) => `${process.env.SERVER_URL || 'http://localhost:4000'}/recipePhoto/${filename.filename}`)
         }
 
         const editRecipe = await prisma.recipe.update({
@@ -162,7 +162,7 @@ export const createRecipe = async (req: Request, res: Response) => {
             const cost = recipeData.cost ? parseInt(recipeData.cost) : 0
             let images: string[] = [];
             if(Array.isArray(filenames)) {
-                images = filenames.map((filename) => `http://localhost:4000/recipePhoto/${filename.filename}`)
+                images = filenames.map((filename) => `${process.env.SERVER_URL || 'http://localhost:4000'}/recipePhoto/${filename.filename}`)
             }
 
             await txprisma.recipe.create({
