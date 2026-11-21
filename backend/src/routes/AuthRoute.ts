@@ -1,5 +1,5 @@
 import { NextFunction, Router }  from 'express'
-import { check, forgotPassword, logout, VerifyOtpCode, signup, ResendOtpCode } from '../controllers/authController.';
+import { check, forgotPassword, logout, VerifyOtpCode, signup, ResendOtpCode } from '../controllers/authController';
 import passport from 'passport';
 
 const router = Router();
