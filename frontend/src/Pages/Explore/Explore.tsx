@@ -63,7 +63,6 @@ const Explore = () => {
         },
     })
 
-    // changing a filter or the search goes back to page 1
     const firstRender = useRef(true)
     useEffect(() => {
         if (firstRender.current) { firstRender.current = false; return }

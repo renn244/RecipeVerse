@@ -91,7 +91,6 @@ export const signup = async (req: Request, res: Response) => {
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
         const { email } = req.body
-        // same answer whether or not the email exists, so it can't be used to find accounts
         const genericResponse = { success: true, message: 'If that email is registered, a reset link has been sent.' }
 
         if(!email) throw new Error('email is required')
@@ -106,7 +105,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
         if(!getUser) return res.status(200).json(genericResponse)
 
-        // one active link per user, valid for 1 hour; only a hash is stored
         const token = crypto.randomBytes(32).toString('hex')
         await prisma.passwordResetToken.deleteMany({ where: { userId: getUser.id } })
         await prisma.passwordResetToken.create({

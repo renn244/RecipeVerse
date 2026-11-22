@@ -12,7 +12,6 @@ type DeleteRecipeDialogProps = {
     onDeleted: () => void,
 }
 
-// confirmation dialog for permanently deleting one of your recipes
 const DeleteRecipeDialog = ({ postId, title, open, onOpenChange, onDeleted }: DeleteRecipeDialogProps) => {
     const [pending, setPending] = useState(false)
 

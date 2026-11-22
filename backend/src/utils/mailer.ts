@@ -1,8 +1,5 @@
 import nodemailer from 'nodemailer'
 
-// Sends an email through Gmail. Returns true on success, false on failure (never throws).
-// In local development without Gmail credentials, the email is printed to the server
-// console instead, so flows like OTP and password reset can still be tested.
 export const sendEmail = async (to: string, subject: string, html: string): Promise<boolean> => {
     const user = process.env.GMAIL_USER
     const pass = process.env.GMAIL_PASSWORD

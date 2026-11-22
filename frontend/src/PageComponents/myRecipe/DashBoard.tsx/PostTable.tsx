@@ -18,7 +18,6 @@ import {
 import PaginationNav from "@/PageComponents/explore/Pagination"
 import DeleteRecipeDialog from "@/PageComponents/Recipe/DeleteRecipeDialog"
 
-
 type PostTableProps = {
     posts: PostDataType[],
     page: number,
@@ -34,7 +33,6 @@ const PostTable = ({
     onPageChange,
     onDeleted
 } : PostTableProps) => {
-  // the post waiting for delete confirmation (dialog lives outside the menu)
   const [toDelete, setToDelete] = useState<PostDataType | null>(null)
 
   return (

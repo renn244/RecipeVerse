@@ -5,7 +5,6 @@ import RecipeCollection from "@/PageComponents/explore/RecipeCollection"
 import PaginationNav from "@/PageComponents/explore/Pagination"
 import { API_URL } from '@/lib/api'
 
-// recipes you bookmarked with the Save button on a recipe page
 const SavedRecipes = () => {
     const [page, setPage] = useState(1)
 
