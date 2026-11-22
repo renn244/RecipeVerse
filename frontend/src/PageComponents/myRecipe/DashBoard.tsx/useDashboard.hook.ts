@@ -21,7 +21,6 @@ const useDashboard = () => {
 
             if(data.error) throw new Error(data.error)
 
-            // deleting the last post on a page: step back a page
             if(data.posts.length === 0 && pageToLoad > 1) return getpostDashboard(pageToLoad - 1)
 
             setPost(data.posts)

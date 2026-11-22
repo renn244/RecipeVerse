@@ -19,17 +19,14 @@ const MyRecipeEdit = () => {
     const callbackFunction = async (e: FormEvent<HTMLFormElement>, recipeData: recipeInfoType) => {
         e.preventDefault()
         const result = await saveEdit.SaveEdit(postId, recipeData)
-        // success returns the recipe id (a string); failure returns { error }
         if(result && typeof result === 'object' && 'error' in result) return toast.error(result.error as string)
 
         toast.success('Recipe updated')
-        // published recipes go back to their page; drafts go back to the drafts list
         navigate(status === 'post' ? `/recipe/${postId}` : '/myrecipe/draft')
     }
 
     useEffect(() => {
         const fetchData = async () => {
-            // the API only returns the recipe to its author
             const data = await getData.getData(postId)
 
             if(!data || data.error) {

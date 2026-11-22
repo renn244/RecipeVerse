@@ -18,7 +18,6 @@ const steps = [
 const Home = () => {
   const { user } = useAuthContext()
 
-  // the newest recipes for the "fresh from the community" section
   const { data, isLoading } = useQuery({
     queryKey: ['homeLatest'],
     queryFn: async () => {
@@ -36,7 +35,6 @@ const Home = () => {
 
   return (
     <div>
-      {/* hero */}
       <section className="max-w-7xl mx-auto px-4 pt-16 pb-20 grid md:grid-cols-2 gap-12 items-center">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wider text-amber-600 mb-4">A home for home cooks</p>
@@ -73,7 +71,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* latest recipes */}
       <section className="bg-muted/50 py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-end justify-between mb-8">
@@ -91,7 +88,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* how it works */}
       <section className="max-w-7xl mx-auto px-4 py-20">
         <h2 className="text-3xl font-bold mb-2">How it works</h2>
         <p className="text-muted-foreground mb-10">Everything you need to keep and share your cooking.</p>
@@ -112,7 +108,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* closing call to action */}
       {!user && (
         <section className="max-w-7xl mx-auto px-4 pb-20">
           <div className="rounded-3xl bg-primary text-primary-foreground px-10 py-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">

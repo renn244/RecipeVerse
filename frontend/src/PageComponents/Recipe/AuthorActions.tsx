@@ -9,7 +9,6 @@ type AuthorActionsProps = {
     title?: string,
 }
 
-// Edit / Delete buttons shown to the author on their own recipe page
 const AuthorActions = ({ postId, title }: AuthorActionsProps) => {
     const [open, setOpen] = useState(false)
     const navigate = useNavigate()

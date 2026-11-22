@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input"
 import LoadingSpinner from "@/PageComponents/LoadingSpinner"
 import { API_URL } from '@/lib/api'
 
-// opened from the link in the reset email: /reset-password?token=...
 const ResetPassword = () => {
   const [searchParams] = useSearchParams()
   const token = searchParams.get('token') || ''

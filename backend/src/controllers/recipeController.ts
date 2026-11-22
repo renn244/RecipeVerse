@@ -20,21 +20,31 @@ export const getRecipe = async (req: Request, res: Response) => {
         const currentPage = parsePage(page)
         const skip = (currentPage - 1) * take
 
-        // only filter on fields the user actually picked: `contains: ''` on a
-        // nullable column excludes NULL rows, which hid recipes with empty dropdowns
-        const recipeFilter: Prisma.RecipeWhereInput = { post: { status: 'post' } }
-        if (search) recipeFilter.title = { contains: search, mode: 'insensitive' }
-        if (mealPreference) recipeFilter.mealPreference = { contains: mealPreference, mode: 'insensitive' }
-        if (mealType) recipeFilter.mealType = { contains: mealType, mode: 'insensitive' }
-        if (cuisine) recipeFilter.cuisine = { contains: cuisine, mode: 'insensitive' }
-        // cost slider = maximum budget; 0 means "any cost"
-        if (Number(cost) > 0) recipeFilter.cost = { lte: Number(cost) }
-
-        const where: Prisma.PostWhereInput = { recipe: recipeFilter }
+        // only filter on picked fields: `contains: ''` hides recipes with an empty value
         const [total, prismaRecipe] = await prisma.$transaction([
-            prisma.post.count({ where }),
+            prisma.post.count({
+                where: {
+                    recipe: {
+                        post: { status: 'post' },
+                        ...(search ? { title: { contains: search, mode: Prisma.QueryMode.insensitive } } : {}),
+                        ...(mealPreference ? { mealPreference: { contains: mealPreference, mode: Prisma.QueryMode.insensitive } } : {}),
+                        ...(mealType ? { mealType: { contains: mealType, mode: Prisma.QueryMode.insensitive } } : {}),
+                        ...(cuisine ? { cuisine: { contains: cuisine, mode: Prisma.QueryMode.insensitive } } : {}),
+                        ...(Number(cost) > 0 ? { cost: { lte: Number(cost) } } : {}),
+                    }
+                }
+            }),
             prisma.post.findMany({
-                where,
+                where: {
+                    recipe: {
+                        post: { status: 'post' },
+                        ...(search ? { title: { contains: search, mode: Prisma.QueryMode.insensitive } } : {}),
+                        ...(mealPreference ? { mealPreference: { contains: mealPreference, mode: Prisma.QueryMode.insensitive } } : {}),
+                        ...(mealType ? { mealType: { contains: mealType, mode: Prisma.QueryMode.insensitive } } : {}),
+                        ...(cuisine ? { cuisine: { contains: cuisine, mode: Prisma.QueryMode.insensitive } } : {}),
+                        ...(Number(cost) > 0 ? { cost: { lte: Number(cost) } } : {}),
+                    }
+                },
                 take: take,
                 skip: skip,
                 orderBy: { createdAt: 'desc' },
@@ -106,7 +116,6 @@ export const editRecipe = async (req: Request, res: Response) => {
         if(!user) throw new Error('not authenticated')
         if(!postId) throw new Error('no post id')
 
-        // only the author may edit their recipe
         const post = await prisma.post.findUnique({ where: { id: postId }, select: { authorId: true } })
         if(!post) throw new Error('recipe not found')
         if(post.authorId !== user.id) return res.status(403).json({ error: 'you can only edit your own recipes' })
@@ -123,7 +132,6 @@ export const editRecipe = async (req: Request, res: Response) => {
             data: {
                 title: recipe.title,
                 description: recipe.description,
-                // keep the existing photos unless new ones were uploaded
                 ...(images.length > 0 ? { image: images } : {}),
                 cookingTime: parseInt(recipe.cookingTime) || 0,
                 servings: parseInt(recipe.servings) || 0,
@@ -153,7 +161,6 @@ export const createRecipe = async (req: Request, res: Response) => {
 
         if(!user) throw new Error('not authenticated')
 
-        // clear message instead of a Prisma validation error when something required is empty
         const missing = [
             !recipeData.title && 'title',
             !recipeData.description && 'description',

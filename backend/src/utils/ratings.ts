@@ -2,7 +2,6 @@ import { prisma } from '../db/db'
 
 type PostWithRecipe = { id: string, recipe: Record<string, any> | null }
 
-// Adds `rating` (average, 1 decimal, 0 when unrated) and `ratingCount` to each post's recipe
 export const attachRatings = async <T extends PostWithRecipe>(posts: T[]): Promise<T[]> => {
     if(posts.length === 0) return posts
 
@@ -27,5 +26,4 @@ export const attachRatings = async <T extends PostWithRecipe>(posts: T[]): Promi
     })
 }
 
-// Parses a page number from user input (defaults to 1)
 export const parsePage = (value: unknown) => Math.max(1, parseInt(String(value)) || 1)

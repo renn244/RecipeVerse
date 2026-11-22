@@ -101,7 +101,6 @@ export const getPostId = async (req: Request, res: Response) => {
             where: { userId_postId: { userId: user.id, postId: post.id } }
         })) : false
 
-        // ratings: average, count and the current user's own rating
         const ratingStats = await prisma.rating.aggregate({ where: { postId: post.id }, _avg: { value: true }, _count: { value: true } })
         const myRating = user ? (await prisma.rating.findUnique({ where: { userId_postId: { userId: user.id, postId: post.id } } }))?.value ?? 0 : 0
 
@@ -155,11 +154,10 @@ export const reportPost = async (req: Request, res: Response) => {
         const { postId } = req.params
         const user = req.user
         const { reason, details } = req.body
-        const reasons = ['spam', 'inappropriate', 'copyright', 'misleading', 'other']
 
         if(!postId) throw new Error('postId empty')
         if(!user) throw new Error('not authenticated')
-        if(!reasons.includes(reason)) throw new Error('please pick a reason for the report')
+        if(!['spam', 'inappropriate', 'copyright', 'misleading', 'other'].includes(reason)) throw new Error('please pick a reason for the report')
         if(details && String(details).length > 500) throw new Error('details must be 500 characters or less')
 
         const post = await prisma.post.findFirst({ where: { id: postId, status: 'post' }, select: { authorId: true } })
@@ -649,7 +647,6 @@ export const deleteChildComment = async (req: Request, res: Response) => {
     }
 }
 
-// rate a recipe 1-5 stars; rating again replaces your previous rating
 export const ratePost = async (req: Request, res: Response) => {
     try {
         const { postId } = req.params

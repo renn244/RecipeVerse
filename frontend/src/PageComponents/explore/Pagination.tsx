@@ -14,7 +14,6 @@ type PaginationProps = {
     onPageChange: (page: number) => void
 }
 
-// page numbers to show: first, last, and a window around the current page
 const visiblePages = (page: number, totalPages: number): (number | '…')[] => {
   const pages = new Set([1, totalPages, page - 1, page, page + 1].filter((p) => p >= 1 && p <= totalPages))
   const sorted = [...pages].sort((a, b) => a - b)

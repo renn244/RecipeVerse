@@ -74,9 +74,7 @@ export const getPostStats = async (req: Request, res: Response) => {
 export const getAllPost = async (req: Request, res: Response) => {
     try {
         const user = req.user
-        const take = 10
         const currentPage = parsePage(req.body?.page ?? req.params.page)
-        const skip = (currentPage - 1) * take
 
         if(!user) throw new Error('no authenticated')
 
@@ -85,8 +83,8 @@ export const getAllPost = async (req: Request, res: Response) => {
             where: {
                 authorId: user.id
             },
-            take: take,
-            skip: skip,
+            take: 10,
+            skip: (currentPage - 1) * 10,
             orderBy: { createdAt: 'desc' },
             select: {
                 id: true,
@@ -111,7 +109,7 @@ export const getAllPost = async (req: Request, res: Response) => {
         return res.status(200).json({
             posts: getPost,
             page: currentPage,
-            totalPages: Math.max(1, Math.ceil(total / take))
+            totalPages: Math.max(1, Math.ceil(total / 10))
         })
     } catch (error: any) {
         console.log('Error in the getAllPost function in the dashboard Controller Error: ' + error)

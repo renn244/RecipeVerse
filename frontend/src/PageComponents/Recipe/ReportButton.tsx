@@ -22,7 +22,6 @@ type ReportButtonProps = {
     isLoggedIn: boolean,
 }
 
-// lets a visitor flag a recipe for review
 const ReportButton = ({ postId, isLoggedIn }: ReportButtonProps) => {
     const [open, setOpen] = useState(false)
     const [reason, setReason] = useState('')

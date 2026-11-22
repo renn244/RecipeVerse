@@ -47,7 +47,7 @@ export type RecipeBodyType = {
     }>,
     author: Author,
     comments: Comment[],
-    headerExtra?: ReactNode // shown under the title (rating, author actions)
+    headerExtra?: ReactNode
 }
 
 const RecipeBody = ({

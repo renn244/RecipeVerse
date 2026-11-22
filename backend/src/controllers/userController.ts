@@ -151,7 +151,7 @@ export const getProfile = async (req: Request, res: Response) => {
                     }
                 }, 
                 Posts: {
-                    where: { status: 'post' }, // drafts are private
+                    where: { status: 'post' },
                     orderBy: { createdAt: 'desc' },
                     take: 12,
                     include: {
@@ -577,23 +577,20 @@ export const deleteAccount = async (req: Request, res: Response, next: NextFunct
     }
 }
 
-// recipes the logged-in user saved (favorites), newest first, 12 per page
 export const getFavorites = async (req: Request, res: Response) => {
     try {
         const user = req.user
         if(!user) throw new Error('not authenticated')
 
-        const take = 12
         const currentPage = parsePage(req.query.page)
-        const where = { userId: user.id, post: { status: 'post' } }
 
         const [total, favorites] = await prisma.$transaction([
-            prisma.favorites.count({ where }),
+            prisma.favorites.count({ where: { userId: user.id, post: { status: 'post' } } }),
             prisma.favorites.findMany({
-                where,
+                where: { userId: user.id, post: { status: 'post' } },
                 orderBy: { createAt: 'desc' },
-                take,
-                skip: (currentPage - 1) * take,
+                take: 12,
+                skip: (currentPage - 1) * 12,
                 include: { post: { include: { recipe: true } } }
             })
         ])
@@ -601,7 +598,7 @@ export const getFavorites = async (req: Request, res: Response) => {
         return res.status(200).json({
             posts: await attachRatings(favorites.map((f) => f.post)),
             page: currentPage,
-            totalPages: Math.max(1, Math.ceil(total / take))
+            totalPages: Math.max(1, Math.ceil(total / 12))
         })
     } catch (error: any) {
         console.log('error in the getFavorites function in the user controller ' + error)
