@@ -109,8 +109,6 @@ export const MultiFactorSendCode = async (email: string, secret: string) =>  {
             html: `<h2>${token}</h2>`
         }
 
-        // await the promise form so a failed send is caught below
-        // (throwing inside the callback form crashed the whole server)
         const info = await transporter.sendMail(mailOptions)
         console.log('Email sent', info.response)
 

@@ -189,7 +189,6 @@ export const uploadDraft = async (req: Request, res: Response) => {
 
         if(!postId) throw new Error('post Id is undefined')
 
-        // only the author can publish, and only once the required fields are filled in
         const draft = await prisma.post.findUnique({ where: { id: postId }, include: { recipe: true } })
         if(!draft || draft.authorId !== req.user?.id) return res.status(403).json({ error: 'you can only publish your own drafts' })
         const r = draft.recipe
@@ -229,7 +228,6 @@ export const Delete = async (req: Request, res: Response) => {
 
         if(!postId) throw new Error('post Id is undefined')
 
-        // only delete it if it belongs to the logged-in user
         const deletePost = await prisma.post.deleteMany({
             where: {
                 id: postId,
@@ -269,8 +267,6 @@ export const SaveDraft = async (req: Request, res: Response) => {
                 images = filenames.map((filename) => `${process.env.SERVER_URL || 'http://localhost:4000'}/recipePhoto/${filename.filename}`)
             }
 
-            // drafts can be incomplete: fall back to empty values instead of
-            // NaN / null, which the schema rejects (cuisine, numbers are required)
             await txprisma.recipe.create({
                 data: {
                     postId: createPost.id,

@@ -94,7 +94,6 @@ const SideBar = ({
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <div className="w-full h-full">
-                                {/* clicking toggles like / unlike */}
                                 <button
                                 disabled={LikePostPending}
                                 onClick={() => LikePost()}

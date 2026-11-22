@@ -20,17 +20,15 @@ export const getRecipe = async (req: Request, res: Response) => {
         // do later cost
         // put later how much page is available
 
-        // only filter on fields the user actually picked: `contains: ''` on a
-        // nullable column excludes NULL rows, which hid recipes with empty dropdowns
-        const recipeFilter: Prisma.RecipeWhereInput = { post: { status: 'post' } }
-        if (search) recipeFilter.title = { contains: search, mode: 'insensitive' }
-        if (mealPreference) recipeFilter.mealPreference = { contains: mealPreference, mode: 'insensitive' }
-        if (mealType) recipeFilter.mealType = { contains: mealType, mode: 'insensitive' }
-        if (cuisine) recipeFilter.cuisine = { contains: cuisine, mode: 'insensitive' }
-
         const prismaRecipe = await prisma.post.findMany({
             where: {
-                recipe: recipeFilter
+                recipe: {
+                    post: { status: 'post' },
+                    ...(search ? { title: { contains: search, mode: Prisma.QueryMode.insensitive } } : {}),
+                    ...(mealPreference ? { mealPreference: { contains: mealPreference, mode: Prisma.QueryMode.insensitive } } : {}),
+                    ...(mealType ? { mealType: { contains: mealType, mode: Prisma.QueryMode.insensitive } } : {}),
+                    ...(cuisine ? { cuisine: { contains: cuisine, mode: Prisma.QueryMode.insensitive } } : {}),
+                }
             },
             take: take,
             skip: skip,
@@ -98,7 +96,6 @@ export const editRecipe = async (req: Request, res: Response) => {
         if(!user) throw new Error('not authenticated')
         if(!postId) throw new Error('no post id')
 
-        // only the author may edit their recipe
         const post = await prisma.post.findUnique({ where: { id: postId }, select: { authorId: true } })
         if(!post) throw new Error('recipe not found')
         if(post.authorId !== user.id) return res.status(403).json({ error: 'you can only edit your own recipes' })
@@ -115,7 +112,6 @@ export const editRecipe = async (req: Request, res: Response) => {
             data: {
                 title: recipe.title,
                 description: recipe.description,
-                // keep the existing photos unless new ones were uploaded
                 ...(images.length > 0 ? { image: images } : {}),
                 cookingTime: parseInt(recipe.cookingTime) || 0,
                 servings: parseInt(recipe.servings) || 0,
