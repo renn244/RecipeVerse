@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { prisma } from '../db/db'
+import { parsePage } from '../utils/ratings'
 import { startOfMonth, endOfMonth, subMonths } from 'date-fns'
 
 // all tested and working
@@ -72,22 +73,21 @@ export const getPostStats = async (req: Request, res: Response) => {
 
 export const getAllPost = async (req: Request, res: Response) => {
     try {
-        // apply pagination later
         const user = req.user
-        const { page } = req.params
-
-        //'1' is supposed to be page
-        const skip = (parseInt('1') - 1) * 10
+        const currentPage = parsePage(req.body?.page ?? req.params.page)
 
         if(!user) throw new Error('no authenticated')
 
+        const total = await prisma.post.count({ where: { authorId: user.id } })
         const getPost = await prisma.post.findMany({
             where: {
                 authorId: user.id
             },
             take: 10,
-            skip: skip,
+            skip: (currentPage - 1) * 10,
+            orderBy: { createdAt: 'desc' },
             select: {
+                id: true,
                 status: true,
                 views: true,
                 likes: true,
@@ -106,7 +106,11 @@ export const getAllPost = async (req: Request, res: Response) => {
             }
         })
         
-        return res.status(200).json(getPost)
+        return res.status(200).json({
+            posts: getPost,
+            page: currentPage,
+            totalPages: Math.max(1, Math.ceil(total / 10))
+        })
     } catch (error: any) {
         console.log('Error in the getAllPost function in the dashboard Controller Error: ' + error)
         return res.status(400).json({ error : error.message })

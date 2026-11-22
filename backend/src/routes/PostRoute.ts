@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { ensureAuthenticated, optionalAuthenticated } from '../utils/ensureAuthenticated'
-import { addFavorites, comment, deleteChildComment, deleteComment, getPostId, likeChildComment, likeComment, likePost, replyChildComment, replyComment, reportPost } from '../controllers/postController'
+import { addFavorites, comment, deleteChildComment, deleteComment, getPostId, likeChildComment, likeComment, likePost, replyChildComment, replyComment, reportPost, ratePost } from '../controllers/postController'
 
 const router = Router()
 
@@ -9,6 +9,8 @@ router.get('/getPost/:postId', optionalAuthenticated, getPostId)// increase view
 router.post('/report/:postId', ensureAuthenticated, reportPost)
 
 router.post('/likePost/:postId', ensureAuthenticated, likePost)
+
+router.post('/rate/:postId', ensureAuthenticated, ratePost)
 
 router.post('/addFavorites/:postId', ensureAuthenticated, addFavorites) // update both the favorite user and author
 

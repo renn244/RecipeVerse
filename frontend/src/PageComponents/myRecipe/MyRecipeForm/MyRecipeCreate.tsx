@@ -130,6 +130,9 @@ function Preview({ recipeInfo } : PreviewProps) {
                         <span className="font-medium">Servings:</span> {recipeInfo.servings}
                     </div>
                     <div className="text-muted-foreground">
+                        <span className="font-medium">Cost:</span> {recipeInfo.cost ? `$${recipeInfo.cost}` : ''}
+                    </div>
+                    <div className="text-muted-foreground">
                         <span className="font-medium">Cuisine:</span> {recipeInfo.cuisine}
                     </div>
                     <div className="text-muted-foreground">

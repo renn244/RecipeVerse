@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt'
 import { NotificationType, Prisma } from '@prisma/client'
 import { removeFile } from '../utils/removeFileUploads'
 import crypto from 'crypto'
+import { attachRatings, parsePage } from '../utils/ratings'
 
 export const isFollowing = async (req: Request, res: Response) => {
     try {
@@ -150,6 +151,8 @@ export const getProfile = async (req: Request, res: Response) => {
                     }
                 }, 
                 Posts: {
+                    where: { status: 'post' },
+                    orderBy: { createdAt: 'desc' },
                     take: 12,
                     include: {
                         recipe: true
@@ -186,6 +189,7 @@ export const getProfile = async (req: Request, res: Response) => {
 
         res.status(200).json({
             ...prismaGetProfile,
+            Posts: await attachRatings(prismaGetProfile.Posts),
             followingCount: followingCount,
             followerCount: followersCount,
             isFollowing: isFollowing ? true : false
@@ -570,5 +574,34 @@ export const deleteAccount = async (req: Request, res: Response, next: NextFunct
     } catch (error: any) {
         console.log('error in the deleteAccount function in the userController' + error)
         res.status(400).json({ error : error.message})
+    }
+}
+
+export const getFavorites = async (req: Request, res: Response) => {
+    try {
+        const user = req.user
+        if(!user) throw new Error('not authenticated')
+
+        const currentPage = parsePage(req.query.page)
+
+        const [total, favorites] = await prisma.$transaction([
+            prisma.favorites.count({ where: { userId: user.id, post: { status: 'post' } } }),
+            prisma.favorites.findMany({
+                where: { userId: user.id, post: { status: 'post' } },
+                orderBy: { createAt: 'desc' },
+                take: 12,
+                skip: (currentPage - 1) * 12,
+                include: { post: { include: { recipe: true } } }
+            })
+        ])
+
+        return res.status(200).json({
+            posts: await attachRatings(favorites.map((f) => f.post)),
+            page: currentPage,
+            totalPages: Math.max(1, Math.ceil(total / 12))
+        })
+    } catch (error: any) {
+        console.log('error in the getFavorites function in the user controller ' + error)
+        return res.status(400).json({ error : error.message })
     }
 }

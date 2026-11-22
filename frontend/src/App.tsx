@@ -17,12 +17,16 @@ import Otp from './Pages/Otp/Otp'
 import Error from './Pages/Error'
 import Notification from './Pages/Notification'
 import Profile from './Pages/Profile/Profile'
+import ForgotPassword from './Pages/ForgotPassword'
+import ResetPassword from './Pages/ResetPassword'
 
 // this will include all the pages where navbar shouldn's show up
 export const NoNavBarPages = [
   '/login',
   '/signUp',
-  '/otp'
+  '/otp',
+  '/forgot-password',
+  '/reset-password'
 ]
 
 function App() {
@@ -49,6 +53,8 @@ function App() {
           <Route path='/login' element={!user ? <Login /> : <Navigate to='/explore' />} /> 
           <Route path='/signUp' element={!user ? <SignUp /> : <Navigate to='/explore' />}/>
           <Route path='/otp' element={!user ? <Otp /> : <Navigate to={'/explore'} /> } />
+          <Route path='/forgot-password' element={!user ? <ForgotPassword /> : <Navigate to={'/explore'} />} />
+          <Route path='/reset-password' element={<ResetPassword />} />
         </Routes>
       </div>
       <div>
