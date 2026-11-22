@@ -3,7 +3,7 @@ import { Strategy as LocalStrategy } from 'passport-local'
 import dotenv from 'dotenv'
 import bcrypt from 'bcrypt'
 import { prisma } from '../db/db'
-import { MultiFactorSendCode } from '../controllers/authController.'
+import { MultiFactorSendCode } from '../controllers/authController'
 
 dotenv.config()
 // not tested
@@ -61,7 +61,7 @@ passport.use(new LocalStrategy(async function(username, password, cb) {
 
         if(getUser?.MultiFactor && getUser.userInfo?.email && getUser.secret) {
             const getOTPCode = await MultiFactorSendCode(getUser.userInfo?.email, getUser.secret)
-            if(!getOTPCode) throw new Error('failed to generate otpCode')
+            if(!getOTPCode) throw new Error('failed to send the OTP email, please try again')
             return cb(null, false, { message : 'otp_required', userId: getUser.id, email: getUser.userInfo.email})
         }
 

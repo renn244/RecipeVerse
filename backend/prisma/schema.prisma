@@ -40,6 +40,7 @@ model User {
   comments  Comment[]
   childComments childComment[]
   Posts     Post[]
+  postLikes PostLike[]
   
   NotificationSent  Notification[]  @relation("notificationSent") // this has no use but just to get the user name and id for info of the user
 
@@ -120,6 +121,7 @@ model Post {
   recipe      Recipe?
   comments    Comment[]
   favorites   Favorites[]
+  postLikes   PostLike[]
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -183,4 +185,16 @@ model Recipe {
 
   postId        String    @unique
   post          Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
 }

@@ -3,7 +3,7 @@ import { createRecipe, editRecipe, getRecipe, getRecipeId } from '../controllers
 import { ensureAuthenticated } from '../utils/ensureAuthenticated'
 import multer from 'multer'
 import diskStorage from '../utils/multerStorage'
-import { getAllPost } from '../controllers/DashboardContoller'
+import { getAllPost } from '../controllers/DashboardController'
 
 const router = Router()
 // all tested

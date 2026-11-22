@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { prisma } from '../db/db'
+import { Prisma } from '@prisma/client'
 
 
 type filterType = {
@@ -22,25 +23,11 @@ export const getRecipe = async (req: Request, res: Response) => {
         const prismaRecipe = await prisma.post.findMany({
             where: {
                 recipe: {
-                    title: {
-                        contains: search || '',
-                        mode: 'insensitive'
-                    },
-                    mealPreference: {
-                        contains: mealPreference || '',
-                        mode: 'insensitive'
-                    },
-                    mealType: {
-                        contains: mealType || '',
-                        mode: 'insensitive'
-                    },
-                    cuisine: {
-                        contains: cuisine || '',
-                        mode: 'insensitive'
-                    },
-                    post: {
-                        status: 'post',
-                    }
+                    post: { status: 'post' },
+                    ...(search ? { title: { contains: search, mode: Prisma.QueryMode.insensitive } } : {}),
+                    ...(mealPreference ? { mealPreference: { contains: mealPreference, mode: Prisma.QueryMode.insensitive } } : {}),
+                    ...(mealType ? { mealType: { contains: mealType, mode: Prisma.QueryMode.insensitive } } : {}),
+                    ...(cuisine ? { cuisine: { contains: cuisine, mode: Prisma.QueryMode.insensitive } } : {}),
                 }
             },
             take: take,
@@ -95,7 +82,7 @@ export const getRecipeId = async (req: Request, res: Response) => {
         return res.status(200).json(postRecipe)
     } catch (error: any) {
         console.log('Error in the getRecipeId function in recipeController Error' + error)
-        return { error : error.message }
+        return res.status(400).json({ error : error.message })
     }
 }
 
@@ -109,23 +96,27 @@ export const editRecipe = async (req: Request, res: Response) => {
         if(!user) throw new Error('not authenticated')
         if(!postId) throw new Error('no post id')
 
+        const post = await prisma.post.findUnique({ where: { id: postId }, select: { authorId: true } })
+        if(!post) throw new Error('recipe not found')
+        if(post.authorId !== user.id) return res.status(403).json({ error: 'you can only edit your own recipes' })
+
         let images: string[] = [];
         if(Array.isArray(filenames)) {
-            images = filenames.map((filename) => `http://localhost:4000/recipePhoto/${filename.filename}`)
+            images = filenames.map((filename) => `${process.env.SERVER_URL || 'http://localhost:4000'}/recipePhoto/${filename.filename}`)
         }
 
         const editRecipe = await prisma.recipe.update({
             where: {
-                postId: postId 
+                postId: postId
             },
             data: {
                 title: recipe.title,
                 description: recipe.description,
-                image: images,
-                cookingTime: parseInt(recipe.cookingTime),
-                servings: parseInt(recipe.servings),
+                ...(images.length > 0 ? { image: images } : {}),
+                cookingTime: parseInt(recipe.cookingTime) || 0,
+                servings: parseInt(recipe.servings) || 0,
                 mealType: recipe.mealType || null,
-                cuisine: recipe.cuisine || null,
+                cuisine: recipe.cuisine || '',
                 mealPreference: recipe.mealPreference || null,
                 instruction: recipe.instruction,
                 ingredients: recipe.ingredients
@@ -162,7 +153,7 @@ export const createRecipe = async (req: Request, res: Response) => {
             const cost = recipeData.cost ? parseInt(recipeData.cost) : 0
             let images: string[] = [];
             if(Array.isArray(filenames)) {
-                images = filenames.map((filename) => `http://localhost:4000/recipePhoto/${filename.filename}`)
+                images = filenames.map((filename) => `${process.env.SERVER_URL || 'http://localhost:4000'}/recipePhoto/${filename.filename}`)
             }
 
             await txprisma.recipe.create({
