@@ -12,7 +12,7 @@ const Otp = () => {
 
     // impement showing time and also auto resending when time is up(optional)
 
-    const next = seachParams.get('next') || '/explore'; // logging in straight from /login has no next
+    const next = seachParams.get('next') || '/explore';
     const userId = seachParams.get('id');
     const email = seachParams.get('email')
 

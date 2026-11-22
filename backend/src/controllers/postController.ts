@@ -97,7 +97,6 @@ export const getPostId = async (req: Request, res: Response) => {
             }
         }) : false
         
-        // has the current user liked this post?
         const isLiked = user ? !!(await prisma.postLike.findUnique({
             where: { userId_postId: { userId: user.id, postId: post.id } }
         })) : false
@@ -124,7 +123,6 @@ export const getPostId = async (req: Request, res: Response) => {
             followingCount
         }
 
-        // count a view once per browser session, and never for the author
         const viewed = req.session.viewedPosts ?? []
         if(post.authorId !== user?.id && !viewed.includes(postId)) {
             req.session.viewedPosts = [...viewed, postId]
@@ -183,7 +181,6 @@ export const reportPost = async (req: Request, res: Response) => {
 }
 
 // tested
-// toggles the like: one like per user, clicking again unlikes
 export const likePost = async (req: Request, res: Response) => {
     try {
         const { postId } = req.params
@@ -224,7 +221,7 @@ export const likePost = async (req: Request, res: Response) => {
             })
         ])
 
-        // NOTIFICATION! (not for liking your own recipe)
+        // NOTIFICATION!
         if(updatePost.authorId !== user.id) {
             const notification = await prisma.notification.create({
                 data: {
